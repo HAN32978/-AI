@@ -6,6 +6,7 @@
 
 - 已导入 [AI-CAD-Audit-System](https://github.com/2sellyogurt/AI-CAD-Audit-System) 的 `main` 代码，位于 [upstream/](upstream/)。
 - 导入基于上游 Git tree `c5234607ae76309c709678b0f209bd892e28b937`；上游代码采用 MIT License，原许可证保留在 [upstream/LICENSE](upstream/LICENSE)。
+- 已导入 [cad-spatial-analysis](https://github.com/YK999671/cad-spatial-analysis) 的代码，位于 [cad-spatial-analysis/](cad-spatial-analysis/)；来源为上游提交 `66d65aa9586c567fe00fd4e1f674c8c0e5d3ae2f`，MIT 许可证保留在 [cad-spatial-analysis/LICENSE](cad-spatial-analysis/LICENSE)。
 - LangChain + RAG 智能客服尚未导入：需要用户提供 Windows 项目代码或仓库地址后，才能进行接口适配和端到端验证。
 
 ## 运行上游演示
