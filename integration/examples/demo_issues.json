@@ -1,0 +1,18 @@
+{
+  "source_type": "upstream-demo-example",
+  "note": "仅用于接口演示，数值和规范条款不得作为实际工程依据",
+  "issues": [
+    {
+      "issue_id": "DEMO-001",
+      "professional": "建筑",
+      "checkpoint_name": "疏散门净宽度检查",
+      "drawing_name": "建施-01.dxf",
+      "location": "A轴/3轴",
+      "description": "疏散门M1宽度标注800mm，需核查有效图纸与适用规范",
+      "severity": "A",
+      "standard_code": "GB50016-2014(2018)",
+      "standard_clause": "5.5.30"
+    }
+  ]
+}
+
