@@ -3,6 +3,7 @@ import uuid
 import streamlit as st
 
 from ui import (
+    API_BASE,
     api_request,
     inject_styles,
     page_header,
@@ -115,10 +116,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+model_response = api_request("GET", "/system/model_status", timeout=5)
+if model_response is not None and model_response.ok:
+    model_state = model_response.json()
+    if model_state.get("status") == "unavailable":
+        st.warning(model_state.get("message", "模型服务暂不可用"))
+
 for message in st.session_state.messages:
     role = message.get("role", "assistant")
     with st.chat_message("user" if role == "user" else "assistant"):
-        st.markdown(message.get("content", ""))
+        if message.get("intent") in {"连接失败", "请求失败", "系统错误"}:
+            st.error(message.get("content", "请求失败"))
+        else:
+            st.markdown(message.get("content", ""))
         if message.get("intent"):
             st.caption(f"意图：{message['intent']}")
         render_sources(message.get("sources", []))
@@ -140,18 +150,22 @@ if prompt := st.chat_input("例如：地下室防水施工的旁站监理要点�
                 timeout=120,
             )
             if response is None:
-                answer = "暂时无法连接 API 服务。请确认 FastAPI 已启动在 localhost:8000。"
+                answer = f"无法连接 API 服务或请求超时。请检查后端地址 {API_BASE} 和后端日志。"
                 sources = []
                 intent = "连接失败"
                 st.error(answer)
             elif not response.ok:
-                answer = f"后端返回错误（{response.status_code}）：{response.text[:300]}"
+                try:
+                    detail = response.json().get("detail", "后端请求失败")
+                except ValueError:
+                    detail = "后端请求失败，请检查日志"
+                answer = f"请求失败（{response.status_code}）：{detail}"
                 sources = []
                 intent = "请求失败"
                 st.error(answer)
             else:
                 data = response.json()
-                answer = data.get("answer", "未返回回答")
+                answer = data.get("answer") or "模型未返回有效回答，请检查模型服务。"
                 sources = data.get("sources", [])
                 intent = data.get("intent", "")
                 st.markdown(answer)

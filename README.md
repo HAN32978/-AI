@@ -22,6 +22,8 @@ cd rag_app
 python -m pip install -r requirements.txt
 Copy-Item config/.env.example config/.env
 # 按本机 Ollama 模型或云端服务修改 config/.env
+# 使用默认本地模型时，先安装模型（客户端初始化不代表模型已安装）
+ollama pull qwen2.5:0.5b
 python run_api.py
 ```
 
@@ -57,6 +59,8 @@ python -m unittest discover -s tests -p test_review_workflow.py -v
 ```
 
 已通过两个接口函数测试、Python 编译检查，以及本地模拟资料的 HTTP 集成检查：上游导出 7 条模拟问题，资料上传后经真实 Embedding 写入 Chroma，审查接口返回候选来源；Streamlit 首页与带结果的工作流页面运行检查通过。真实 DXF、真实规范库、模型回答质量和工程结论尚未验证。`integration/examples/` 的数值与条款只能用于演示数据流。
+
+2026-10-07 运行修复：新增五个回归用例，覆盖 Excel 不联网读取、合并标题识别、模型缺失提示、问答失败返回 HTTP 503 和无页码表格来源。合成 Excel 经真实 Embedding 入库后，通过本地 `qwen2.5:0.5b` 生成包含指定问题与处理要求的回答，并返回文件来源。验证记录见 [问答回归验证](docs/问答回归验证.json)，问题过程见 [启动与问答故障修复](docs/启动与问答故障修复.md)。这只验证单个用例的数据流；默认小模型的真实工程资料回答能力有限，尚无准确率结论。
 
 源码阅读材料：[原始代码](docs/项目一原始源码归档.md)、[修改后代码](docs/修改后整合源码归档.md)、[逐文件差异](docs/项目一到整合版改动对照.md)、[面试讲解](docs/源码改动与面试面经.md)。
 

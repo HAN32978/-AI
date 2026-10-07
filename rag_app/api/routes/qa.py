@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from api.dependencies import get_rag_chain_dep
 from core.rag_chain import RAGChain
+from core.llm_client import LLMServiceError
 
 router = APIRouter(prefix="/qa", tags=["智能问答"])
 
@@ -16,7 +17,9 @@ class QuestionRequest(BaseModel):
 
 class SourceInfo(BaseModel):
     source: str
-    page: int = None
+    page: int | None = None
+    sheet_name: str | None = None
+    row: int | None = None
     content: str
 
 
@@ -37,7 +40,10 @@ async def ask_question(
     if not request.question.strip():
         raise HTTPException(400, "问题不能为空")
 
-    result = rag_chain.ask(request.question, request.session_id)
+    try:
+        result = rag_chain.ask(request.question, request.session_id)
+    except LLMServiceError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     return AnswerResponse(
         answer=result["answer"],
         sources=[SourceInfo(**s) for s in result["sources"]],

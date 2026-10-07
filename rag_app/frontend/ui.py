@@ -28,6 +28,15 @@ def inject_styles() -> None:
             --green: #257942;
         }
         .stApp { background: var(--paper); color: var(--ink); }
+        /* 显式设置消息颜色，避免浏览器深色主题下白字落在浅色背景。 */
+        [data-testid="stChatMessage"] { background: #e6eef5; color: var(--ink); }
+        [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"],
+        [data-testid="stChatMessage"] p,
+        [data-testid="stChatMessage"] li,
+        [data-testid="stChatMessage"] [data-testid="stCaptionContainer"] { color: var(--ink); }
+        [data-testid="stChatInput"] { background: #fff; }
+        [data-testid="stChatInput"] textarea { color: var(--ink); background: #fff; }
+        [data-testid="stBottom"] > div { background: var(--paper); }
         [data-testid="stHeader"] { background: rgba(247,249,251,.9); }
         [data-testid="stSidebar"] { background: var(--navy); }
         [data-testid="stSidebarNav"] { display: none; }
@@ -71,7 +80,7 @@ def render_sidebar(active: str = "") -> None:
     with st.sidebar:
         st.markdown('<div class="brand-mark">工程项目RAG智能问答系统</div>', unsafe_allow_html=True)
         st.markdown('<div class="brand-subtitle">工程资料 · 图纸 · 规范智能查询平台</div>', unsafe_allow_html=True)
-        st.markdown('<span class="status-pill status-ok">● 本地服务</span><span class="status-pill status-neutral">Ollama</span>', unsafe_allow_html=True)
+        st.caption("模型连接状态见智能问答与系统设置")
         st.divider()
         st.caption("项目工作台")
         st.page_link("app.py", label="项目总览", icon="🏠")
@@ -115,9 +124,17 @@ def render_sources(sources: list[dict], expandable: bool = True) -> None:
     with st.expander(f"查看引用依据（{len(sources)} 条）") if expandable else st.container():
         for source in sources:
             name = escape(str(source.get("source", "未标注文件")))
-            page = escape(str(source.get("page", "-") or "-"))
+            locations = []
+            if source.get("sheet_name"):
+                locations.append(f"工作表：{source['sheet_name']}")
+            if source.get("row") is not None:
+                locations.append(f"第 {source['row']} 行")
+            elif source.get("page") is not None:
+                locations.append(f"第 {source['page']} 页")
+            location = escape(" · ".join(locations))
+            heading = name + (f" · {location}" if location else "")
             content = escape(str(source.get("content", "")))
             st.markdown(
-                f'<div class="evidence-card"><div class="evidence-source">{name} · 第 {page} 页</div><div class="evidence-text">{content}</div></div>',
+                f'<div class="evidence-card"><div class="evidence-source">{heading}</div><div class="evidence-text">{content}</div></div>',
                 unsafe_allow_html=True,
             )

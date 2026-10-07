@@ -1,6 +1,7 @@
 """统一封装本地 Ollama 和 OpenAI 兼容云端模型服务。"""
 
 import logging
+import requests
 
 from langchain_community.chat_models import ChatOllama
 from langchain_openai import ChatOpenAI
@@ -9,6 +10,26 @@ from config.settings import settings
 
 
 logger = logging.getLogger(__name__)
+
+
+class LLMServiceError(RuntimeError):
+    """模型服务不可用，向界面提供可操作的错误信息。"""
+
+
+def ensure_llm_ready() -> None:
+    """Ollama 客户端初始化不代表指定模型已经安装。"""
+    if settings.LLM_PROVIDER != "ollama":
+        return
+    try:
+        response = requests.get(f"{settings.OLLAMA_BASE_URL.rstrip('/')}/api/tags", timeout=3)
+        response.raise_for_status()
+        names = {item.get("name", "") for item in response.json().get("models", [])}
+    except (requests.RequestException, ValueError) as exc:
+        raise LLMServiceError("无法连接本地 Ollama 服务，请先启动 Ollama，再检查系统设置中的服务地址。") from exc
+    model = settings.OLLAMA_MODEL_NAME
+    expected = model if ":" in model else model + ":latest"
+    if model not in names and expected not in names:
+        raise LLMServiceError(f"本地模型 {model} 尚未安装。请在终端运行 ollama pull {model}，下载完成后重新提问。")
 
 
 class LLMClient:

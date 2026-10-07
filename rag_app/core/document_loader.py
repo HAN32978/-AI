@@ -14,10 +14,45 @@ from langchain_community.document_loaders import (
 PyMuPDFLoader,
 Docx2txtLoader,
 TextLoader,
-UnstructuredExcelLoader,
-UnstructuredMarkdownLoader
 )
+from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+
+class ExcelTableLoader:
+    """按工作表逐行读取，保留列名、行号，不触发 NLP 资源下载。"""
+
+    def __init__(self, file_path: str):
+        self.path = Path(file_path)
+
+    def load(self) -> list:
+        import pandas as pd
+
+        engine = "openpyxl" if self.path.suffix.lower() == ".xlsx" else "xlrd"
+        documents = []
+        with pd.ExcelFile(self.path, engine=engine) as workbook:
+            for sheet_name in workbook.sheet_names:
+                table = pd.read_excel(workbook, sheet_name=sheet_name, header=None,
+                                      dtype=str, keep_default_na=False).fillna("")
+                nonempty = table.apply(lambda row: any(str(value).strip() for value in row), axis=1)
+                table = table.loc[nonempty]
+                if table.empty:
+                    continue
+                # 工程表格常在第一行合并单元格写标题，下一行才是列名。
+                header_index = next((index for index, row in table.iterrows()
+                                     if sum(bool(str(value).strip()) for value in row) >= 2), table.index[0])
+                title = "；".join(str(value).strip() for _, row in table.loc[table.index < header_index].iterrows()
+                                 for value in row if str(value).strip())
+                header = [str(value).strip() for value in table.loc[header_index]]
+                header_text = " | ".join(value or f"列{index + 1}" for index, value in enumerate(header))
+                for row_index, row in table.loc[table.index > header_index].iterrows():
+                    cells = [f"{header[index] or f'列{index + 1}'}：{str(value).strip()}"
+                             for index, value in enumerate(row) if str(value).strip()]
+                    documents.append(Document(
+                        page_content=f"工作表：{sheet_name}\n标题：{title}\n表头：{header_text}\nExcel 行号：{row_index + 1}\n" + "；".join(cells),
+                        metadata={"sheet_name": sheet_name, "row": int(row_index + 1)},
+                    ))
+        return documents
 
 class DocumentLoader:
     """统一文档加载器类"""
@@ -27,9 +62,9 @@ class DocumentLoader:
         ".docx": Docx2txtLoader,
         ".doc": Docx2txtLoader,
         ".txt": TextLoader,
-        ".md": UnstructuredMarkdownLoader,
-        ".xlsx": UnstructuredExcelLoader,
-        ".xls": UnstructuredExcelLoader
+        ".md": TextLoader,
+        ".xlsx": ExcelTableLoader,
+        ".xls": ExcelTableLoader
     }
 
     def __init__(self, chunk_size: int = None, chunk_overlap: int = None):
@@ -62,7 +97,7 @@ class DocumentLoader:
         try:
             # 3. 加载文档
             loader_class = self.LOADER_MAP[ext]
-            if ext == ".txt":
+            if ext in {".txt", ".md"}:
                 loader = loader_class(str(file_path), encoding="utf-8")
             else:
                 loader = loader_class(str(file_path))

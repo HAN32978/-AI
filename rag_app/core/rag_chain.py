@@ -10,7 +10,7 @@ from langchain.chains.history_aware_retriever import create_history_aware_retrie
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
 
-from core.llm_client import get_llm
+from core.llm_client import get_llm, ensure_llm_ready, LLMServiceError
 from core.retriever import get_rag_retriever
 from core.intent_recognizer import IntentRecognizer
 from core.memory_manager   import get_memory_manager
@@ -106,6 +106,7 @@ class RAGChain:
 
         # 2. 获取对话历史
         try:
+            ensure_llm_ready()
             chat_history = self.memory_manager.get_chat_history(session_id)
             chain_input = {
                 "input": question,
@@ -117,8 +118,10 @@ class RAGChain:
             sources = []
             for doc in source_docs: 
                 sources.append({
-                    "source": doc.metadata.get("file_name", doc.metadata.get("source", "未知")),
-                    "page": doc.metadata.get("page", 1),
+                    "source": doc.metadata.get("original_filename", doc.metadata.get("file_name", doc.metadata.get("source", "未知"))),
+                    "page": (doc.metadata["page"] + 1) if doc.metadata.get("page") is not None else None,
+                    "sheet_name": doc.metadata.get("sheet_name"),
+                    "row": doc.metadata.get("row"),
                     "content": doc.page_content[:200] + '...' if len(doc.page_content) > 200 else doc.page_content
                 })
             # 3. 更新对话历史
@@ -128,9 +131,11 @@ class RAGChain:
                 "sources": sources,
                 "intent": intent
             }
+        except LLMServiceError:
+            raise
         except Exception as e:
             logger.error(f"处理问题时出错: {str(e)}")
-            return {"answer": "抱歉，处理问题时出错了", "sources": [], "intent": "系统错误"}
+            raise LLMServiceError("问答生成失败，请检查模型服务、系统设置和后端日志。当前请求未生成有效回答。") from e
         
     def get_chat_history(self, session_id: str = DEFAULT_SESSION_ID) -> list:
         """获取对话历史"""
