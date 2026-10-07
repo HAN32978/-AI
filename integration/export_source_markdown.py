@@ -19,10 +19,10 @@ def redact(text):
 def archive(title, files, destination):
     sections = [f"# {title}\n\n这是源码阅读归档；执行代码请使用仓库中的实际文件。归档不包含 .env、权重、用户资料或向量库。非空密钥字面量会被遮盖。\n"]
     for name, raw in files.items():
-        text = redact(raw.decode("utf-8-sig", errors="replace"))
+        text = redact(raw.decode("utf-8-sig", errors="replace")).replace("\r\n", "\n").replace("\r", "\n")
         language = "python" if name.endswith(".py") else "text"
         sections.append(f"\n## {name}\n\nSHA256：`{hashlib.sha256(raw).hexdigest()}`\n\n```{language}\n{text.rstrip()}\n```\n")
-    destination.write_text("\n".join(sections), encoding="utf-8")
+    destination.write_text("\n".join(sections).rstrip() + "\n", encoding="utf-8", newline="\n")
 
 
 def main():
