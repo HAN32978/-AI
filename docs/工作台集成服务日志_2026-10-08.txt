@@ -1,0 +1,258 @@
+2026-10-08 10:59:53 - root - INFO - 日志系统初始化完成, 级别是 INFO
+INFO:     Started server process [844]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:53287 (Press CTRL+C to quit)
+INFO:     127.0.0.1:58516 - "GET /api/v1/system/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58520 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58522 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:58523 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61342 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61343 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+2026-10-08 10:59:54 - core.embedding - INFO - 从本地加载嵌入模型: D:\chat.gpt\工程项目RAG智能问答系统\rag_app\models\BAAI_bge-small-zh-v1.5
+INFO:     127.0.0.1:61344 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61345 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61346 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61347 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61348 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61349 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61350 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61351 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61352 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61353 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61354 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61355 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61356 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61357 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61358 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61359 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61360 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61361 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61362 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61363 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61364 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61365 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52617 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52618 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52619 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57466 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57467 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57468 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57469 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57470 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57471 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57472 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57473 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57474 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57475 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57476 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53833 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53834 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53835 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53836 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53837 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53838 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53839 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53840 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53841 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53842 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53843 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53844 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53845 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53846 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53847 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53852 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53853 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53854 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53855 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53856 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53857 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53858 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53861 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53862 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53863 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53864 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53865 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53866 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53867 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53868 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53869 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53870 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53871 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53872 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53873 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+2026-10-08 11:00:19 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: D:\chat.gpt\工程项目RAG智能问答系统\rag_app\models\BAAI_bge-small-zh-v1.5
+INFO:     127.0.0.1:53874 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+2026-10-08 11:00:19 - core.embedding - INFO - 嵌入模型已初始化: D:\chat.gpt\工程项目RAG智能问答系统\rag_app\models\BAAI_bge-small-zh-v1.5
+D:\chat.gpt\工程项目RAG智能问答系统\rag_app\core\vector_store.py:31: LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-chroma package and should be used instead. To use it run `pip install -U :class:`~langchain-chroma` and import as `from :class:`~langchain_chroma import Chroma``.
+  self._store = Chroma(
+INFO:     127.0.0.1:53875 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53876 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53877 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53878 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+2026-10-08 11:00:21 - chromadb.telemetry.product.posthog - ERROR - Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+INFO:     127.0.0.1:53881 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+2026-10-08 11:00:21 - chromadb.telemetry.product.posthog - ERROR - Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+2026-10-08 11:00:21 - core.vector_store - INFO - Chroma向量库已初始化，存储路径: D:\chat.gpt\工程项目RAG智能问答系统\.runtime\workbench-verification\0d18239beb81\vectors
+2026-10-08 11:00:21 - chromadb.telemetry.product.posthog - ERROR - Failed to send telemetry event CollectionGetEvent: capture() takes 1 positional argument but 3 were given
+INFO:     127.0.0.1:53885 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53888 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53889 - "GET /api/v1/documents/ba4c915a373243f989df6726ef910ad4?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53890 - "POST /api/v1/upload/file HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53891 - "GET /api/v1/records?date=9%E6%9C%889%E6%97%A5&page_size=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53892 - "GET /api/v1/records?date=9%E6%9C%889%E6%97%A5&page_size=10&page=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53893 - "GET /api/v1/records?date=2026-09-09 HTTP/1.1" 200 OK
+2026-10-08 11:00:22 - core.memory_manager - INFO - 创建新对话: ["default", null, "default"]
+INFO:     127.0.0.1:53894 - "POST /api/v1/qa/ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53895 - "GET /api/v1/records/export?date=9%E6%9C%889%E6%97%A5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53896 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53897 - "GET /api/v1/documents/66b32d8bf5304937a28de0a833f6e50c?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53899 - "GET /api/v1/documents/66b32d8bf5304937a28de0a833f6e50c?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53904 - "GET /api/v1/documents/66b32d8bf5304937a28de0a833f6e50c?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53905 - "GET /api/v1/records?document_id=66b32d8bf5304937a28de0a833f6e50c&date=9%E6%9C%889%E6%97%A5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53906 - "GET /api/v1/records?document_id=66b32d8bf5304937a28de0a833f6e50c&date_quality_filter=needs_review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53907 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53908 - "GET /api/v1/documents/f08bf1d00404451abecd081921f88bf9?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53909 - "GET /api/v1/documents/f08bf1d00404451abecd081921f88bf9?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53910 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53911 - "GET /api/v1/documents/3ad2c7e01e49453f912b9ab955bc4f1b?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53912 - "GET /api/v1/documents/3ad2c7e01e49453f912b9ab955bc4f1b?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53913 - "GET /api/v1/documents/f08bf1d00404451abecd081921f88bf9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53914 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53915 - "GET /api/v1/documents/7eb11641076c46379cb97db840e3d647?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53916 - "GET /api/v1/documents/7eb11641076c46379cb97db840e3d647?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53917 - "GET /api/v1/documents/3ad2c7e01e49453f912b9ab955bc4f1b HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53918 - "GET /api/v1/documents/f08bf1d00404451abecd081921f88bf9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53919 - "POST /api/v1/projects HTTP/1.1" 201 Created
+2026-10-08 11:00:24 - core.memory_manager - INFO - 创建新对话: ["b724c01cfd6c4ed2b8443b2066a67699", null, "default"]
+INFO:     127.0.0.1:53920 - "POST /api/v1/qa/ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53921 - "POST /api/v1/upload/file HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:53922 - "POST /api/v1/upload/file HTTP/1.1" 413 Request Entity Too Large
+INFO:     127.0.0.1:53923 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53924 - "GET /api/v1/documents/9d841cfa986b485d92b0b12a21d72515?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53925 - "GET /api/v1/documents/9d841cfa986b485d92b0b12a21d72515?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53926 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53927 - "GET /api/v1/documents/ca6b642561f3427784a8d99a35c65d3a?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53928 - "GET /api/v1/documents/ca6b642561f3427784a8d99a35c65d3a?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53929 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53930 - "GET /api/v1/documents/1fb6540d0ada4bae8393ddf68e1dd256?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53931 - "GET /api/v1/documents/1fb6540d0ada4bae8393ddf68e1dd256?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53932 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:53933 - "GET /api/v1/documents/b97cdbea036947aabd703902beea9090?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53934 - "GET /api/v1/documents/b97cdbea036947aabd703902beea9090?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60621 - "GET /api/v1/documents/b97cdbea036947aabd703902beea9090?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49559 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49560 - "GET /api/v1/documents/4f326de1347e43a4a23a04ed745c3664?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57481 - "GET /api/v1/documents/4f326de1347e43a4a23a04ed745c3664?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57482 - "GET /api/v1/documents/4f326de1347e43a4a23a04ed745c3664?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61880 - "GET /api/v1/documents/4f326de1347e43a4a23a04ed745c3664?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62923 - "GET /api/v1/documents/4f326de1347e43a4a23a04ed745c3664?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62924 - "GET /api/v1/documents/9d841cfa986b485d92b0b12a21d72515/download HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62925 - "POST /api/v1/projects HTTP/1.1" 201 Created
+INFO:     127.0.0.1:62926 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:62927 - "GET /api/v1/documents/98179acca4eb456e89bb7dd808df476f?project_id=c1b431cf961e4398bd30104ded742ce4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62928 - "GET /api/v1/documents/98179acca4eb456e89bb7dd808df476f?project_id=c1b431cf961e4398bd30104ded742ce4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62929 - "GET /api/v1/documents/98179acca4eb456e89bb7dd808df476f?project_id=c1b431cf961e4398bd30104ded742ce4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62930 - "POST /api/v1/upload/file HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:62931 - "GET /api/v1/documents/bb8f0ef66b564012a05c7014aacb2e5a?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62932 - "GET /api/v1/documents/bb8f0ef66b564012a05c7014aacb2e5a?project_id=default HTTP/1.1" 200 OK
+2026-10-08 11:00:31 - root - INFO - 未启用Reranker
+2026-10-08 11:00:31 - core.rag_chain - INFO - RAG问答链初始化完成
+2026-10-08 11:00:31 - core.rag_chain - INFO - 识别到的意图: 通用问答
+2026-10-08 11:00:31 - core.memory_manager - INFO - 创建新对话: ["default", "bb8f0ef66b564012a05c7014aacb2e5a", "default"]
+2026-10-08 11:00:31 - chromadb.telemetry.product.posthog - ERROR - Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+D:\chat.gpt\工程项目RAG智能问答系统\rag_app\core\llm_client.py:44: LangChainDeprecationWarning: The class `ChatOllama` was deprecated in LangChain 0.3.1 and will be removed in 1.0.0. An updated version of the class exists in the :class:`~langchain-ollama package and should be used instead. To use it run `pip install -U :class:`~langchain-ollama` and import as `from :class:`~langchain_ollama import ChatOllama``.
+  self._llm = ChatOllama(
+2026-10-08 11:00:31 - core.llm_client - INFO - Ollama 客户端已初始化：qwen2.5:0.5b
+2026-10-08 11:00:31 - core.rag_chain - INFO - 历史感知检索器创建完成
+2026-10-08 11:00:31 - core.rag_chain - INFO - RAG问答链创建完成
+INFO:     127.0.0.1:62933 - "POST /api/v1/qa/ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62940 - "GET /api/v1/documents/bb8f0ef66b564012a05c7014aacb2e5a?project_id=c1b431cf961e4398bd30104ded742ce4 HTTP/1.1" 422 Unprocessable Entity
+2026-10-08 11:00:31 - core.memory_manager - INFO - 创建新对话: ["c1b431cf961e4398bd30104ded742ce4", null, "default"]
+INFO:     127.0.0.1:62941 - "GET /api/v1/qa/history?project_id=c1b431cf961e4398bd30104ded742ce4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62942 - "POST /api/v1/issues HTTP/1.1" 201 Created
+INFO:     127.0.0.1:62943 - "POST /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53/events HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62944 - "POST /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53/events HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62945 - "POST /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53/events HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62946 - "POST /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62947 - "POST /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62948 - "POST /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53/events HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62949 - "GET /api/v1/documents HTTP/1.1" 200 OK
+2026-10-08 11:00:34 - root - INFO - 日志系统初始化完成, 级别是 INFO
+INFO:     Started server process [27036]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:53287 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50448 - "GET /api/v1/system/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50449 - "GET /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50450 - "GET /api/v1/documents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50451 - "POST /api/v1/review/run HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50452 - "POST /api/v1/knowledge/clear HTTP/1.1" 409 Conflict
+2026-10-08 11:00:36 - root - INFO - 日志系统初始化完成, 级别是 INFO
+INFO:     Started server process [33836]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:53287 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50460 - "GET /api/v1/system/health HTTP/1.1" 200 OK
+2026-10-08 11:00:37 - core.embedding - INFO - 从本地加载嵌入模型: D:\chat.gpt\工程项目RAG智能问答系统\rag_app\models\BAAI_bge-small-zh-v1.5
+2026-10-08 11:01:05 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: D:\chat.gpt\工程项目RAG智能问答系统\rag_app\models\BAAI_bge-small-zh-v1.5
+2026-10-08 11:01:05 - core.embedding - INFO - 嵌入模型已初始化: D:\chat.gpt\工程项目RAG智能问答系统\rag_app\models\BAAI_bge-small-zh-v1.5
+D:\chat.gpt\工程项目RAG智能问答系统\rag_app\core\vector_store.py:31: LangChainDeprecationWarning: The class `Chroma` was deprecated in LangChain 0.2.9 and will be removed in 1.0. An updated version of the class exists in the :class:`~langchain-chroma package and should be used instead. To use it run `pip install -U :class:`~langchain-chroma` and import as `from :class:`~langchain_chroma import Chroma``.
+  self._store = Chroma(
+2026-10-08 11:01:07 - chromadb.telemetry.product.posthog - ERROR - Failed to send telemetry event ClientStartEvent: capture() takes 1 positional argument but 3 were given
+2026-10-08 11:01:07 - chromadb.telemetry.product.posthog - ERROR - Failed to send telemetry event ClientCreateCollectionEvent: capture() takes 1 positional argument but 3 were given
+2026-10-08 11:01:07 - core.vector_store - INFO - Chroma向量库已初始化，存储路径: D:\chat.gpt\工程项目RAG智能问答系统\.runtime\workbench-verification\0d18239beb81\vectors
+2026-10-08 11:01:07 - root - INFO - 未启用Reranker
+2026-10-08 11:01:07 - core.rag_chain - INFO - RAG问答链初始化完成
+2026-10-08 11:01:07 - core.rag_chain - INFO - 识别到的意图: 通用问答
+2026-10-08 11:01:07 - core.memory_manager - INFO - 创建新对话: ["default", "bb8f0ef66b564012a05c7014aacb2e5a", "default"]
+2026-10-08 11:01:07 - chromadb.telemetry.product.posthog - ERROR - Failed to send telemetry event CollectionQueryEvent: capture() takes 1 positional argument but 3 were given
+2026-10-08 11:01:07 - core.llm_client - ERROR - 初始化大模型客户端失败
+Traceback (most recent call last):
+  File "D:\chat.gpt\工程项目RAG智能问答系统\rag_app\core\llm_client.py", line 115, in _initialize_client
+    raise ValueError(
+ValueError: OpenAI 未配置 API Key，请在 config/.env 中填写对应密钥
+2026-10-08 11:01:07 - core.rag_chain - ERROR - 处理问题时出错: OpenAI 未配置 API Key，请在 config/.env 中填写对应密钥
+INFO:     127.0.0.1:50461 - "POST /api/v1/qa/ask HTTP/1.1" 503 Service Unavailable
+2026-10-08 11:01:07 - core.memory_manager - INFO - 创建新对话: ["b724c01cfd6c4ed2b8443b2066a67699", null, "default"]
+INFO:     127.0.0.1:62731 - "POST /api/v1/qa/ask HTTP/1.1" 200 OK
+2026-10-08 11:01:09 - root - INFO - 日志系统初始化完成, 级别是 INFO
+INFO:     Started server process [35184]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:53287 (Press CTRL+C to quit)
+INFO:     127.0.0.1:62758 - "GET /api/v1/system/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63918 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63919 - "GET /api/v1/documents/stats?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63920 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63922 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63923 - "GET /api/v1/documents/stats?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63924 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63926 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63928 - "GET /api/v1/documents?project_id=default&current_only=False HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63932 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63934 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63935 - "GET /api/v1/documents/stats?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63936 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63938 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63939 - "GET /api/v1/documents?project_id=default&current_only=False HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63940 - "GET /api/v1/documents/stats?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63941 - "GET /api/v1/documents/bb8f0ef66b564012a05c7014aacb2e5a?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63942 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63943 - "GET /api/v1/documents/stats?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63944 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63946 - "GET /api/v1/system/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63947 - "GET /api/v1/system/config HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63949 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63950 - "GET /api/v1/documents/stats?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63951 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63953 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63954 - "GET /api/v1/documents?project_id=default&current_only=False HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63955 - "GET /api/v1/records?project_id=default&page=1&page_size=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63956 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63957 - "GET /api/v1/documents/stats?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63958 - "GET /api/v1/system/model_status HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63960 - "GET /api/v1/projects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63961 - "GET /api/v1/issues?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63962 - "GET /api/v1/issues/83a470fa1c744e4d994dde7e68ac0d53?project_id=default HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63964 - "GET /api/v1/documents?project_id=default&current_only=False HTTP/1.1" 200 OK

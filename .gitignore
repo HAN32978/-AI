@@ -1,0 +1,14 @@
+**/__pycache__/
+*.py[cod]
+*.log
+.env
+**/.env
+**/.venv/
+.runtime/
+**/.pytest_cache/
+rag_app/data/
+rag_app/upload/
+rag_app/vector_db/
+rag_app/models/
+integration/output/
+upstream/output_v7.0/

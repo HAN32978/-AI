@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "model": "qwen2.5:0.5b",
+  "model_status": "ready",
+  "xlsx_upload_http_status": 200,
+  "indexed_chunks": 1,
+  "qa_http_status": 200,
+  "answer": "根据演示检查记录，9月9日测试区A发现的问题是：“演示通道堆放材料”。处理要求是：“清理通道内材料”。",
+  "source_count": 1,
+  "scope": "合成 Excel 的真实本地问答与引用验证；未评估工程规范准确率"
+}
