@@ -74,6 +74,18 @@ class VectorStoreManager:
             logger.error(f"添加文档到向量库失败: {e}")
             return 0
 
+    def replace_document(self, document_id: str, documents: list) -> None:
+        """重试用稳定文档 ID 替换，避免崩溃后重复写入。失败交给任务层记录。"""
+        if settings.VECTOR_STORE_TYPE == "chroma":
+            existing = self._store.get(where={"document_id": document_id}).get("ids", [])
+        else:
+            existing = [key for key, doc in self._store.docstore._dict.items()
+                        if doc.metadata.get("document_id") == document_id]
+        if existing:
+            self._store.delete(ids=existing)
+        self._store.add_documents(documents, ids=[f"{document_id}:{i}" for i in range(len(documents))])
+        self._save_faiss()
+
     def delete_by_source(self, source: str) -> int:
         """
         根据源文件删除文档
@@ -161,10 +173,13 @@ class VectorStoreManager:
 
 # 全局单例
 _vector_store_instance: VectorStoreManager = None
+from threading import Lock
+_vector_init_lock = Lock()
 
 def get_vector_store_manager() -> VectorStoreManager:
     """ 获取向量库管理器单例 """
     global _vector_store_instance
-    if _vector_store_instance is None:
-        _vector_store_instance = VectorStoreManager()
+    with _vector_init_lock:
+        if _vector_store_instance is None:
+            _vector_store_instance = VectorStoreManager()
     return _vector_store_instance

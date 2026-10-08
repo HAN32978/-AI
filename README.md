@@ -1,67 +1,77 @@
-# 工程项目RAG智能问答系统
+# 工程项目 RAG 智能问答系统
 
-面向工程项目资料查询与图纸问题复核的本地作品集项目。仓库整合了三个已有部分：项目一的 FastAPI/LangChain RAG 核心、此前修改的“监理智查”界面与配置、原仓库导入的 CAD 审查上游代码。当前集成点是**审图问题池 JSON → 工程资料检索 → 候选依据展示 → 人工复核**。
+当前版本：1.1.0。面向施工、监理工作的本地作品集应用，沿用项目一与“监理智查”的 FastAPI / LangChain / Chroma / Streamlit 实现，新增**完整记录查询、文档台账、持久化入库任务、现场整改资料闭环**。
 
-## 模块
+独立图纸错误审查已移出主导航与主 API，源代码保存为历史实验。现场问题通过问题记录、整改回复、申请复查及人工销项处理。系统不会因模型回答、照片或原表空白状态自动销项。
 
-| 路径 | 作用 |
-|---|---|
-| `rag_app/` | 可独立运行的工程资料 RAG 应用，包含问答、上传、知识库和图纸审查工作流页面 |
-| `upstream/` | 已有的 AI-CAD-Audit-System 上游审图代码，保留原许可证 |
-| `cad-spatial-analysis/` | 已有的空间分析代码与参考资料，保留原许可证 |
-| `integration/export_cad_issues.py` | 调用上游审图入口，导出 `ProblemPool.to_json()` 格式的问题池 |
-| `integration/examples/demo_issues.json` | 明确标记为模拟数据的接口示例 |
-| `docs/源码改动与面试面经.md` | 源码关系、实现讲解、面试问答和验证边界 |
+## Windows 启动
 
-## 快速运行（Windows PowerShell）
+进入实际包含 `run_api.py` 的 `rag_app` 目录，在两个终端运行：
 
-RAG 应用与上游 CAD 模块的依赖分开安装；Python 建议使用 3.10 环境。
-
-```powershell
-cd rag_app
-python -m pip install -r requirements.txt
-Copy-Item config/.env.example config/.env
-# 按本机 Ollama 模型或云端服务修改 config/.env
-# 使用默认本地模型时，先安装模型（客户端初始化不代表模型已安装）
-ollama pull qwen2.5:0.5b
+```bat
+conda activate rag_qa_system
+cd /d "C:\Users\32978\Desktop\工程项目RAG智能问答系统_整合版项目一\rag_app"
 python run_api.py
 ```
 
-在另一个终端：
-
-```powershell
-cd rag_app
+```bat
+conda activate rag_qa_system
+cd /d "C:\Users\32978\Desktop\工程项目RAG智能问答系统_整合版项目一\rag_app"
 python run_frontend.py
 ```
 
-打开 `http://localhost:8501`。接口文档在 `http://localhost:8000/docs`。需要本地 Embedding 模型：可将已有 `BAAI_bge-small-zh-v1.5` 模型目录放入 `rag_app/models/`，也可在有网络时由 Hugging Face 下载。模型权重、`.env`、上传文件和向量库均不提交到仓库。
+前端：`http://localhost:8501`；接口文档：`http://localhost:8000/docs`。
 
-## 图纸审查与 RAG 的组合
+首次安装需 `python -m pip install -r requirements.txt`。仅当 `config/.env` 不存在时，从 `config/.env.example` 复制并填写配置，避免覆盖已有密钥。云模型无需 Ollama；本地默认问答模型 `qwen2.5:0.5b` 需要通过 `ollama pull` 安装。Embedding 使用本地 BGE 模型或首次从 Hugging Face 下载，权重放 `rag_app/models/BAAI_bge-small-zh-v1.5`。模型权重不在代码 ZIP 中。
 
-先用仓库附带的模拟 JSON 验证接口：在“图纸审查工作流”页面上传 `integration/examples/demo_issues.json`，点击“检索候选依据”。需要 RAG API 和可用的 Embedding 模型；未上传相关资料时会显示“待补充依据”。
+## 能力与边界
 
-要从上游 CAD 审查代码生成问题池，先安装其独立依赖：
+| 类型/功能 | 当前能力 |
+|---|---|
+| 文字 PDF、DOCX、TXT、Markdown | 解析分块、语义检索与来源 |
+| XLSX/XLS | 完整原表记录存 SQLite，语义片段存 Chroma；按日期、文档、原表状态、关键词查询全部匹配行及 CSV |
+| DXF | 读取布局中的直接 TEXT/MTEXT 和 INSERT 属性，标记部分解析；不保证嵌套块、外参、代理对象完整 |
+| DWG | 原件归档；另传 DXF/PDF，可关联原件 |
+| RVT | 原件归档；首期通过 Revit 导出 IFC/PDF 并关联原件 |
+| IFC | 原件归档，暂未实现 BIM 属性解析 |
+| DOC、PNG/JPG/JPEG | 原件归档；DOC 可另存 DOCX/PDF，现场图片可关联整改依据 |
+| 扫描 PDF | 未包含 OCR；未提取文字时明确标为仅归档 |
+| 业务日期 | 没有年份的“9月9日”保持月日，不猜测年份；可人工登记完整业务日期 |
+| 文档版本 | 同项目同文件名分组；默认查询最新处理成功版本，可明确查询历史版本 |
+| 入库任务 | SQLite 排队、解析、索引、可用、部分解析、仅归档、失败；重启恢复中断任务，可手动重试 |
+| 整改闭环 | 人工登记、回复、申请复查、复查通过/退回、重新打开；回复和销项需要归档依据 |
 
-```powershell
-python -m pip install -r upstream/v7/requirements.txt
-python integration/export_cad_issues.py --mode demo
-```
+单文件默认上限 50MB。上传已接收不等于已经可检索，应在台账确认状态。索引失败但 Excel 解析成功时，完整记录仍可查询，语义索引数为零。仅原件归档的 DWG/RVT/IFC 不会作为文字问答来源。
 
-输出在 `integration/output/cad_issues.json`，然后在前端上传。真实 DXF 审查可用 `--mode dxf --dxf-dir <图纸目录> --project <项目名>`；此模式需要上游要求的模型配置，当前未用真实图纸和规范资料完成端到端验证。
+当前是单 API 进程、本地单用户应用。项目范围过滤已实现，但没有账号认证、RBAC 或电子签章；填写的操作人不代表认证身份。尚无多进程任务租约、生产部署规模或工程规范准确率数据。原课程 FAISS 分支仍保留，本次真实集成验证使用 Chroma。
 
-也可以直接调用 `POST /api/v1/review/evidence`，请求体包含 `project_name`、`issues` 和 `top_k`。`issues` 使用上游 `ProblemPool.to_json()` 的同名数组。系统返回候选资料片段与复核状态，不自动作出合规结论。
+## 核心代码
 
-## 验证与边界
+| 文件 | 作用 |
+|---|---|
+| `rag_app/core/document_catalog.py` | SQLite 项目、文档版本、任务、完整记录、人工事件 |
+| `rag_app/core/file_ingestion.py` | 类型验证、表格字段与日期、DXF 部分解析、单进程 Worker |
+| `rag_app/api/routes/documents.py` | 台账、下载、完整记录分页/导出、整改状态接口 |
+| `rag_app/api/routes/qa.py` | 日期清单查询走结构化数据库；语义问答才初始化 LLM |
+| `rag_app/core/rag_chain.py` | 检索限定当前项目/版本文档 ID，对话按项目与文档隔离 |
+| `rag_app/frontend/pages/4_📋_记录查询.py` | 完整清单、原表字段、导出和登记整改事项 |
+| `rag_app/frontend/pages/5_🛠️_现场整改.py` | 人工闭环、依据关联、事件历史与 MD 导出 |
+| `rag_app/experiments/drawing_review/` | 历史独立图纸审查，显式启动才能访问 |
 
-```powershell
+旧 `/knowledge/delete`、`/knowledge/clear` 已返回 409，避免只清除向量导致台账与整改依据不一致。原件不自动删除。已有上传原件启动时导入默认项目，重复内容复用文档 ID；旧的无文档 ID 向量保留，但主产品检索只使用台账中的文档 ID。
+
+## 验证
+
+```bat
 cd rag_app
-python -m unittest discover -s tests -p test_review_workflow.py -v
+python -m unittest discover -s tests -p test_catalog_workflow.py -v
+python -m unittest discover -s tests -p test_qa_regressions.py -v
+cd ..
+python integration/verify_workbench.py --model-dir rag_app/models/BAAI_bge-small-zh-v1.5
 ```
 
-已通过两个接口函数测试、Python 编译检查，以及本地模拟资料的 HTTP 集成检查：上游导出 7 条模拟问题，资料上传后经真实 Embedding 写入 Chroma，审查接口返回候选来源；Streamlit 首页与带结果的工作流页面运行检查通过。真实 DXF、真实规范库、模型回答质量和工程结论尚未验证。`integration/examples/` 的数值与条款只能用于演示数据流。
+集成验证只使用隔离合成資料，涵盖真实 HTTP、Chroma、本地 Ollama、服务重启和 Streamlit AppTest。DWG/RVT/IFC 的合成文件仅验证基础文件头与归档状态，不代表完整原生文件解析。结果见 [工作台回归验证](docs/工作台回归验证.json)。历史图纸实验测试与旧验证记录不作为本版业务验收。
 
-2026-10-07 运行修复：新增五个回归用例，覆盖 Excel 不联网读取、合并标题识别、模型缺失提示、问答失败返回 HTTP 503 和无页码表格来源。合成 Excel 经真实 Embedding 入库后，通过本地 `qwen2.5:0.5b` 生成包含指定问题与处理要求的回答，并返回文件来源。验证记录见 [问答回归验证](docs/问答回归验证.json)，问题过程见 [启动与问答故障修复](docs/启动与问答故障修复.md)。这只验证单个用例的数据流；默认小模型的真实工程资料回答能力有限，尚无准确率结论。
+源码与面试资料：[实现说明与面经](docs/源码改动与面试面经.md)、[原始源码](docs/项目一原始源码归档.md)、[修改后源码](docs/修改后整合源码归档.md)、[逐文件改动](docs/项目一到整合版改动对照.md)、[用户手册](docs/用户手册_资料台账与现场整改.md)。
 
-源码阅读材料：[原始代码](docs/项目一原始源码归档.md)、[修改后代码](docs/修改后整合源码归档.md)、[逐文件差异](docs/项目一到整合版改动对照.md)、[面试讲解](docs/源码改动与面试面经.md)。
-
-详细架构和操作见 [集成说明](docs/INTEGRATION.md)。
+原仓库 `upstream/`、`cad-spatial-analysis/` 保留来源与许可证，当前不参与主业务流程。参考开源项目的功能模式没有被描述为自行开发的原始算法。

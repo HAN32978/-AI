@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from config.settings import settings
 from config.logging_config import setup_logging
 from api.routes import upload_router, qa_router, knowledge_router, system_router, review_router
+from api.routes.documents import router as documents_router
 
 # 配置日志
 setup_logging()
@@ -17,11 +18,13 @@ setup_logging()
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
     # 启动时初始化
-    from core.vector_store import get_vector_store_manager
-    get_vector_store_manager()  # 预加载向量库
-    yield
-    # 关闭时清理
-    pass
+    from core.file_ingestion import IngestionWorker
+    worker = IngestionWorker()
+    worker.start()
+    try:
+        yield
+    finally:
+        worker.stop()
 
 
 app = FastAPI(
@@ -53,7 +56,7 @@ app.include_router(upload_router, prefix="/api/v1")
 app.include_router(qa_router, prefix="/api/v1")
 app.include_router(knowledge_router, prefix="/api/v1")
 app.include_router(system_router, prefix="/api/v1")
-app.include_router(review_router, prefix="/api/v1")
+app.include_router(documents_router, prefix="/api/v1")
 
 
 @app.get("/")

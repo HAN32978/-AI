@@ -6,6 +6,7 @@ import logging
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.runnables import RunnableLambda
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
@@ -30,7 +31,7 @@ class RAGChain:
         self._rag_chain = self._create_rag_chain()
         logger.info("RAG问答链初始化完成")
 
-    def _create_rag_chain(self):
+    def _create_rag_chain(self, document_ids=None):
         """ 创建RAG问答链 """
         # 1. 改写用户提示词
         # 用户第一次问：推荐几款牙膏？   第二次：那个便宜？
@@ -49,9 +50,14 @@ class RAGChain:
         )
 
         # 创建历史感知检索器
+        search_kwargs = {"k": settings.SEARCH_TOP_K}
+        if document_ids:
+            search_kwargs["filter"] = {"document_id": {"$in": document_ids}}
+        retriever = (RunnableLambda(lambda query: []) if document_ids == [] else
+                     self.retriever.get_compresstion_retriever(search_kwargs=search_kwargs))
         history_aware_retriever = create_history_aware_retriever(
             self.llm,
-            self.retriever.get_compresstion_retriever(search_kwargs={"k": settings.SEARCH_TOP_K}),
+            retriever,
             contextualize_q_prompt
         )
         logger.info("历史感知检索器创建完成")
@@ -90,7 +96,7 @@ class RAGChain:
         logger.info("RAG问答链创建完成")
         return rag_chain
 
-    def ask(self, question: str, session_id: str = DEFAULT_SESSION_ID) -> dict:
+    def ask(self, question: str, session_id: str = DEFAULT_SESSION_ID, document_ids=None) -> dict:
         """
         处理用户问题
         :param question: 用户问题
@@ -112,7 +118,8 @@ class RAGChain:
                 "input": question,
                 "chat_history": chat_history
             }
-            result = self._rag_chain.invoke(chain_input)
+            chain = self._rag_chain if document_ids is None else self._create_rag_chain(document_ids)
+            result = chain.invoke(chain_input)
             answer = result["answer"]
             source_docs = result.get("context", [])
             sources = []
@@ -122,6 +129,10 @@ class RAGChain:
                     "page": (doc.metadata["page"] + 1) if doc.metadata.get("page") is not None else None,
                     "sheet_name": doc.metadata.get("sheet_name"),
                     "row": doc.metadata.get("row"),
+                    "document_id": doc.metadata.get("document_id"),
+                    "version_label": doc.metadata.get("version_label"),
+                    "layout": doc.metadata.get("layout"),
+                    "entity_handle": doc.metadata.get("entity_handle"),
                     "content": doc.page_content[:200] + '...' if len(doc.page_content) > 200 else doc.page_content
                 })
             # 3. 更新对话历史

@@ -12,13 +12,20 @@ router = APIRouter(prefix="/system", tags=["系统状态"])
 @router.get("/model_status")
 def model_status():
     """本地模型检查安装状态；云端只标记配置，不能宣称调用成功。"""
+    config = get_provider_display()
     if settings.LLM_PROVIDER != "ollama":
-        return {"status": "configured", "message": "当前使用云端模型，实际调用结果以问答请求为准。"}
+        return {**config, "status": "configured", "message": "当前使用云端模型，实际调用结果以问答请求为准。"}
     try:
         ensure_llm_ready()
-        return {"status": "ready", "message": f"本地模型已安装：{settings.OLLAMA_MODEL_NAME}"}
+        return {**config, "status": "ready", "message": f"本地模型已安装：{settings.OLLAMA_MODEL_NAME}"}
     except LLMServiceError as exc:
-        return {"status": "unavailable", "message": str(exc)}
+        return {**config, "status": "unavailable", "message": str(exc)}
+
+
+def get_provider_display():
+    prefix = settings.LLM_PROVIDER.upper()
+    key = "OLLAMA_MODEL_NAME" if prefix == "OLLAMA" else f"{prefix}_MODEL_NAME"
+    return {"provider": settings.LLM_PROVIDER, "model": getattr(settings, key, "未配置")}
 
 
 @router.get("/health")

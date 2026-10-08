@@ -16,9 +16,24 @@ def get_vector_store_dep():
 def get_rag_chain_dep():
     """获取RAG链依赖"""
     try:
-        return get_rag_chain()
+        return LazyRAGChain()
     except (ValueError, LLMServiceError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+class LazyRAGChain:
+    """完整记录查询不初始化模型；语义问答时才加载。"""
+    def ask(self, question, session_id, document_ids=None):
+        return get_rag_chain().ask(question, session_id, document_ids=document_ids)
+
+    def clear_session(self, session_id):
+        from core.memory_manager import get_memory_manager
+        get_memory_manager().clear_session(session_id)
+
+    def get_chat_history(self, session_id):
+        from core.memory_manager import get_memory_manager
+        return [{"role": "human" if m.type == "human" else "assistant", "content": m.content}
+                for m in get_memory_manager().get_chat_history(session_id)]
 
 
 def get_document_loader_dep():

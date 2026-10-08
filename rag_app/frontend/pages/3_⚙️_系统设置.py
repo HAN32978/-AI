@@ -56,7 +56,7 @@ python run_frontend.py""",
     language="powershell",
 )
 
-st.info("当前项目默认使用 Ollama 本地模型。模型名称和检索参数在 config/.env 中维护，修改后重启 API 和前端即可生效。")
+st.info("实际模型提供商以当前运行配置为准。模型与密钥在 config/.env 中维护，修改后重启 API。云模型无需启动 Ollama；完整记录查询无需调用问答模型。")
 
 st.markdown("<div class='section-label'>可接入提供商</div>", unsafe_allow_html=True)
 provider_cards = [

@@ -1,7 +1,7 @@
 """
 知识库管理API
 """
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from api.dependencies import get_vector_store_dep
 from core.vector_store import VectorStoreManager
@@ -27,25 +27,17 @@ async def get_knowledge_stats(
 @router.post("/delete")
 async def delete_document(
     request: DeleteRequest,
-    vector_store: VectorStoreManager = Depends(get_vector_store_dep)
 ):
     """
     根据源文件路径删除文档
     """
-    deleted_count = vector_store.delete_by_source(request.source_path)
-    return {
-        "status": "success",
-        "deleted_count": deleted_count,
-        "source_path": request.source_path
-    }
+    raise HTTPException(409, "已启用文档台账，旧版单独删除向量接口已停用，避免与原件及完整记录状态不一致。")
 
 
 @router.post("/clear")
 async def clear_knowledge_base(
-    vector_store: VectorStoreManager = Depends(get_vector_store_dep)
 ):
     """
     清空整个知识库
     """
-    vector_store.clear_all()
-    return {"status": "success", "message": "知识库已清空"}
+    raise HTTPException(409, "已启用文档台账，旧版全局清空向量接口已停用。请保留原件与整改依据。")

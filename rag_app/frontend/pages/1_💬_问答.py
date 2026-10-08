@@ -9,6 +9,9 @@ from ui import (
     page_header,
     render_sidebar,
     render_sources,
+    project_selector,
+    document_choices,
+    document_label,
 )
 
 
@@ -16,6 +19,18 @@ st.set_page_config(page_title="智能问答 | 工程项目RAG智能问答系统"
 inject_styles()
 render_sidebar("智能问答")
 page_header("FIELD ASSISTANT", "智能问答", "用自然语言查询监理资料、施工图纸说明与规范条文，并保留可复核的引用依据")
+
+project = project_selector()
+documents = {d["id"]: d for d in document_choices(project) if d["status"] in {"ready", "partial"}}
+document_id = st.selectbox("问答范围", [""] + list(documents),
+                           format_func=lambda v: "当前项目全部可检索的当前版本" if not v else document_label(documents[v]))
+scope = (project, document_id)
+if st.session_state.get("chat_scope") != scope:
+    st.session_state.messages = []
+    st.session_state.chat_scope = scope
+query_mode = st.selectbox("查询方式", ["auto", "records", "semantic"],
+                          format_func=lambda v: {"auto": "自动：日期记录查询走完整清单", "records": "完整记录查询（无需模型）", "semantic": "知识库语义问答"}[v])
+scope_params = {"project_id": project, **({"document_id": document_id} if document_id else {})}
 
 
 def normalize_messages(items: list[dict]) -> list[dict]:
@@ -59,7 +74,7 @@ with st.sidebar:
         history_response = api_request(
             "GET",
             "/qa/history",
-            params={"session_id": selected},
+            params={"session_id": selected, **scope_params},
             timeout=5,
         )
         st.session_state.messages = normalize_messages(
@@ -87,7 +102,7 @@ with st.sidebar:
         response = api_request(
             "POST",
             "/qa/clear_memory",
-            params={"session_id": st.session_state.current_session},
+            params={"session_id": st.session_state.current_session, **scope_params},
             timeout=10,
         )
         st.session_state.messages = []
@@ -146,7 +161,7 @@ if prompt := st.chat_input("例如：地下室防水施工的旁站监理要点�
             response = api_request(
                 "POST",
                 "/qa/ask",
-                json={"question": prompt, "session_id": st.session_state.current_session},
+                json={"question": prompt, "session_id": st.session_state.current_session, "query_mode": query_mode, **scope_params},
                 timeout=120,
             )
             if response is None:

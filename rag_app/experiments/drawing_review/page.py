@@ -1,6 +1,9 @@
 """Join the upstream CAD finding export with local RAG source retrieval."""
 
 import json
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "frontend"))
 
 import streamlit as st
 
@@ -9,7 +12,7 @@ from ui import api_request, inject_styles, page_header, render_sidebar, render_s
 
 st.set_page_config(page_title="图纸审查工作流 | 工程项目RAG智能问答系统", page_icon="🧭", layout="wide")
 inject_styles()
-render_sidebar("图纸审查工作流")
+st.warning("历史实验模块，已移出主产品；不作为现场整改业务流程。需单独启动历史 API。")
 page_header("DRAWING REVIEW", "图纸审查工作流", "导入图纸审查问题，检索工程资料中的候选依据，逐项人工复核")
 
 st.info("先在上游审图模块导出问题池 JSON。候选资料仅供复核，系统不自动确认规范适用性或图纸合规性。")

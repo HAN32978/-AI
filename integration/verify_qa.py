@@ -27,6 +27,7 @@ def main():
     env = os.environ.copy()
     env.update({"EMBEDDING_MODEL_NAME": str(args.model_dir.resolve()),
                 "VECTOR_DB_DIR": str(runtime / "vectors"), "UPLOAD_DIR": str(runtime / "upload"),
+                "DOCUMENT_DB_PATH": str(runtime / "documents.sqlite3"),
                 "LOG_FILE": str(runtime / "api.log"), "USE_RERANKER": "false",
                 "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1",
                 "LLM_PROVIDER": "ollama", "OLLAMA_MODEL_NAME": "qwen2.5:0.5b"})
@@ -59,16 +60,17 @@ def main():
             workbook.close()
             uploaded = requests.post(base + "/upload/file", files={"file": ("qa_demo_only.xlsx", buffer.getvalue())}, timeout=20)
             uploaded.raise_for_status()
-            deadline = time.monotonic() + 30
+            deadline = time.monotonic() + 90
             while time.monotonic() < deadline:
-                stats = requests.get(base + "/knowledge/stats", timeout=5).json()
-                if stats.get("total_documents", 0) >= 1:
+                doc = requests.get(base + "/documents/" + uploaded.json()["document_id"], timeout=5).json()
+                stats = {"total_documents": doc["chunk_count"]}
+                if doc["status"] == "ready":
                     break
                 time.sleep(0.5)
             else:
                 raise RuntimeError("Excel 未完成入库")
             response = requests.post(base + "/qa/ask", json={
-                "question": "请根据演示检查记录，回答9月9日测试区A发现的检查问题和处理要求。", "session_id": "qa-regression"
+                "question": "请根据演示检查记录，回答9月9日测试区A发现的检查问题和处理要求。", "session_id": "qa-regression", "query_mode": "semantic"
             }, timeout=120)
             response.raise_for_status()
             answer = response.json()

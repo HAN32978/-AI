@@ -1,123 +1,72 @@
-"""
-文件上传API
-"""
-import shutil
+"""接收原件并持久化任务；HTTP 202 表示已接收，不表示已完成解析。"""
 import uuid
 from pathlib import Path
 from typing import List
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
-from fastapi.params import Depends
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
-import logging
 from config.settings import settings
-from api.dependencies import get_vector_store_dep
-from core.vector_store import VectorStoreManager
-from core.document_loader import DocumentLoader
+from core.document_catalog import get_catalog
+from core.file_ingestion import SUPPORTED, validate_file
 
-logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/upload", tags=["文件上传"])
 
 
-def process_file_background(file_path: str, metadata: dict, vector_store: VectorStoreManager):
-    """后台处理文件并添加到向量库"""
+async def receive_file(file, project_id, category, business_date, document_number, version_label, source_document_id):
+    original = (file.filename or "").replace("\\", "/").split("/")[-1]
+    suffix = Path(original).suffix.lower()
+    if not original or suffix not in SUPPORTED:
+        raise HTTPException(400, "不支持的文件格式")
+    catalog = get_catalog()
     try:
-        loader = DocumentLoader()
-        docs = loader.load_file(file_path, metadata)
-        if docs:
-            vector_store.add_documents(docs)
-            logger.info(f"后台处理完成: {file_path}，添加 {len(docs)} 个片段")
-        else:
-            logger.warning(f"文件无有效内容: {file_path}")
-    except Exception as e:
-        logger.error(f"后台处理文件失败: {file_path}, 错误: {e}")
+        catalog.require_project(project_id)
+        if source_document_id:
+            catalog.document(source_document_id, project_id)
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    target = settings.UPLOAD_DIR / (uuid.uuid4().hex + suffix)
+    size = 0
+    try:
+        with target.open("wb") as stream:
+            while part := await file.read(1024 * 1024):
+                size += len(part)
+                if size > settings.MAX_UPLOAD_MB * 1024 * 1024:
+                    raise HTTPException(413, f"文件超过 {settings.MAX_UPLOAD_MB}MB，请拆分后上传")
+                stream.write(part)
+        validate_file(target)
+        document, duplicate = catalog.register(target, original, project_id, category, business_date,
+                                                document_number, version_label, source_document_id or None)
+        if duplicate:
+            target.unlink()
+        return {"status": document["status"], "document_id": document["id"], "file_id": document["id"],
+                "filename": document["original_filename"], "duplicate": duplicate,
+                "message": "相同文件与元数据已登记，请查看原任务状态" if duplicate else "原件已接收，处理结果请查看文档台账"}
+    except ValueError as exc:
+        target.unlink(missing_ok=True)
+        raise HTTPException(422, str(exc)) from exc
+    except Exception:
+        target.unlink(missing_ok=True)
+        raise
+    finally:
+        await file.close()
 
 
 @router.post("/file")
-async def upload_file(
-    background_tasks: BackgroundTasks,
-    file: UploadFile = File(...),
-    category: str = Form("general"),
-    vector_store: VectorStoreManager = Depends(get_vector_store_dep)
-):
-    """
-    上传单个文件
-    """
-    # 验证文件类型
-    allowed_extensions = {'.pdf', '.docx', '.doc', '.txt', '.md', '.xlsx', '.xls'}
-    file_ext = Path(file.filename).suffix.lower()
-    if file_ext not in allowed_extensions:
-        raise HTTPException(400, f"不支持的文件格式: {file_ext}")
-
-    # 生成唯一文件名
-    unique_id = uuid.uuid4().hex[:8]
-    safe_filename = f"{unique_id}_{file.filename}"
-    save_path = settings.UPLOAD_DIR / safe_filename
-
-    # 保存文件
-    try:
-        with open(save_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-    except Exception as e:
-        logger.error(f"文件保存失败: {e}")
-        raise HTTPException(500, f"文件保存失败: {str(e)}")
-
-    # 元数据
-    metadata = {
-        "category": category,
-        "original_filename": file.filename,
-        "upload_time": str(Path(save_path).stat().st_ctime)
-    }
-
-    # 后台处理添加到向量库
-    background_tasks.add_task(
-        process_file_background,
-        str(save_path),
-        metadata,
-        vector_store
-    )
-
-    return JSONResponse({
-        "status": "success",
-        "message": f"文件 {file.filename} 上传成功，正在后台处理",
-        "file_id": unique_id,
-        "filename": safe_filename
-    })
+async def upload_file(file: UploadFile = File(...), project_id: str = Form("default"),
+                      category: str = Form("general"), business_date: str = Form(""),
+                      document_number: str = Form(""), version_label: str = Form(""),
+                      source_document_id: str = Form("")):
+    result = await receive_file(file, project_id, category, business_date, document_number, version_label, source_document_id)
+    return JSONResponse(result, status_code=200 if result["duplicate"] else 202)
 
 
 @router.post("/batch")
-async def upload_batch_files(
-    background_tasks: BackgroundTasks,
-    files: List[UploadFile] = File(...),
-    category: str = Form("general"),
-    vector_store: VectorStoreManager = Depends(get_vector_store_dep)
-):
-    """
-    批量上传文件
-    """
+async def upload_batch_files(files: List[UploadFile] = File(...), project_id: str = Form("default"),
+                             category: str = Form("general"), business_date: str = Form(""),
+                             document_number: str = Form(""), version_label: str = Form("")):
     results = []
     for file in files:
         try:
-            file_ext = Path(file.filename).suffix.lower()
-            allowed = {'.pdf', '.docx', '.doc', '.txt', '.md', '.xlsx', '.xls'}
-            if file_ext not in allowed:
-                results.append({"filename": file.filename, "status": "skipped", "reason": "不支持的文件格式"})
-                continue
-
-            unique_id = uuid.uuid4().hex[:8]
-            safe_filename = f"{unique_id}_{file.filename}"
-            save_path = settings.UPLOAD_DIR / safe_filename
-
-            with open(save_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-
-            metadata = {
-                "category": category,
-                "original_filename": file.filename,
-            }
-            background_tasks.add_task(process_file_background, str(save_path), metadata, vector_store)
-
-            results.append({"filename": file.filename, "status": "success", "file_id": unique_id})
-        except Exception as e:
-            results.append({"filename": file.filename, "status": "error", "reason": str(e)})
-
-    return JSONResponse({"results": results})
+            results.append(await receive_file(file, project_id, category, business_date, document_number, version_label, ""))
+        except HTTPException as exc:
+            results.append({"filename": file.filename, "status": "rejected", "message": exc.detail})
+    return JSONResponse({"results": results}, status_code=202)

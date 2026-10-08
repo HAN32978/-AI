@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     # 项目基本配置
     PROJECT_NAME: str = "工程项目RAG智能问答系统"
-    PROJECT_VERSION: str = "1.0.0"
+    PROJECT_VERSION: str = "1.1.0"
     BASE_DIR : Path = Path(__file__).parent.parent.resolve()
 
     # 数据目录
@@ -32,6 +32,8 @@ class Settings(BaseSettings):
     VECTOR_DB_DIR : Path = BASE_DIR / "vector_db"
     MODELS_DIR : Path = BASE_DIR / "models"
     UPLOAD_DIR : Path = BASE_DIR / "upload"
+    DOCUMENT_DB_PATH: Path = BASE_DIR / "data" / "documents.sqlite3"
+    MAX_UPLOAD_MB: int = 50
 
     # 向量库配置
     VECTOR_STORE_TYPE : Literal["faiss", "chroma"] = "chroma"
