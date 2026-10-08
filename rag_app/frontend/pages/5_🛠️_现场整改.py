@@ -9,6 +9,7 @@ render_sidebar("现场整改资料闭环")
 page_header("RECTIFICATION TRACKING", "现场整改资料闭环", "问题登记 → 整改回复 → 申请复查 → 人工复查与销项")
 project = project_selector()
 st.info("照片、回复文件和模型回答不会自动销项。整改回复与复查通过需登记操作人、说明，并关联本项目已归档依据。")
+st.caption("回复须关联分类为“整改回复”的文件，销项须关联“复查依据”，登记完整业务日期；原问题表不能代替完成依据。文件内容相关性仍须人工核实。")
 st.caption("当前为本地单用户演示，操作人由人工填写；未实施账号认证或电子签章。")
 with st.expander("新建现场问题（Excel 来源问题可在记录查询中登记）"):
     with st.form("create_site_issue"):
@@ -52,6 +53,7 @@ else:
             action = st.selectbox("处理操作", actions, format_func=labels.get)
             actor = st.text_input("本次操作人")
             note = st.text_area("整改回复 / 复查结论及依据说明")
+            evidence_date = st.text_input("回复/复查业务日期（YYYY-MM-DD；非登记时间）")
             attachments = st.multiselect("关联依据文件（先到资料库上传）", list(docs), format_func=lambda v: document_label(docs[v]))
             confirm = st.checkbox("已人工核实本次说明与关联依据")
             submitted = st.form_submit_button("保存人工处理记录", type="primary")
@@ -60,7 +62,8 @@ else:
                 st.warning("请完成人工核实后勾选确认。")
             else:
                 result = require_response(api_request("POST", f"/issues/{selected}/events", json={"project_id": project,
-                                          "action": action, "actor": actor, "note": note, "attachment_ids": attachments}, timeout=15))
+                                          "action": action, "actor": actor, "note": note, "attachment_ids": attachments,
+                                          "evidence_date": evidence_date}, timeout=15))
                 if result:
                     st.success(f"已保存，当前状态：{ISSUE_STATES[result['status']]}。请刷新查看。")
                     issue = result
@@ -68,9 +71,10 @@ else:
         for event in issue["events"]:
             with st.expander(f"{event['created_at']} · {event['actor']} · {labels.get(event['action'], '登记问题')}"):
                 st.write(event["note"])
+                st.caption(f"业务日期：{event.get('evidence_date') or '旧记录未登记'}")
                 for doc_id in event["attachment_ids"]:
                     st.write(document_label(docs[doc_id]) if doc_id in docs else f"文档 ID：{doc_id}")
         draft = f"# 现场整改事项记录（人工复核稿）\n\n事项 ID：{selected}\n\n问题：{issue['description']}\n\n部位：{issue['location']}\n\n责任方：{issue['responsible_party']}\n\n当前状态：{ISSUE_STATES[issue['status']]}\n\n"
         for event in issue["events"]:
-            draft += f"## {event['created_at']} {event['actor']} {labels.get(event['action'], '登记问题')}\n\n{event['note']}\n\n依据文件 ID：{', '.join(event['attachment_ids']) or '无'}\n\n"
+            draft += f"## {event['created_at']} {event['actor']} {labels.get(event['action'], '登记问题')}\n\n业务日期：{event.get('evidence_date') or '未登记'}\n\n{event['note']}\n\n依据文件 ID：{', '.join(event['attachment_ids']) or '无'}\n\n"
         st.download_button("导出整改事项记录 MD", draft, f"整改事项_{selected[:8]}.md", "text/markdown")

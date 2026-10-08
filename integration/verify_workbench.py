@@ -1,5 +1,6 @@
 """隔离合成资料的真实 HTTP / Chroma / 本地 LLM / Streamlit 验证。"""
 import argparse
+import hashlib
 import csv
 import io
 import json
@@ -80,6 +81,7 @@ def main():
             proc.wait(timeout=5)
     try:
         process = start()
+        check("本地模型服务就绪", request("GET", "/system/model_status").json()["status"] == "ready")
         workbook = Workbook()
         workbook.active.append(["演示9月9日检查记录"])
         workbook.active.append(["序号", "部位", "问题描述", "整改要求", "整改状态", "附加字段"])
@@ -102,7 +104,33 @@ def main():
         qa = request("POST", "/qa/ask", json={"question": "查询9月9日全部检查问题", "page_size": 200}, timeout=30).json()
         check("自然语言日期查询完整 25 条", qa["intent"] == "完整记录查询" and qa["total"] == 25 and len(qa["records"]) == 25)
         exported = list(csv.reader(io.StringIO(request("GET", "/records/export", params={"date": "9月9日"}).content.decode("utf-8-sig"))))
-        check("CSV 导出 25 行、全字段与公式转义", len(exported) == 26 and exported[1][4].startswith("'=") and "附加字段" in exported[1][-1])
+        check("CSV 导出 25 行、全字段与公式转义", len(exported) == 26 and exported[1][4].startswith("'=") and "附加字段" in exported[1][11])
+        def excel_bytes(rows):
+            book = Workbook()
+            book.active.append(["日期", "问题描述", "整改状态"])
+            for row in rows:
+                book.active.append(row)
+            result = io.BytesIO()
+            book.save(result)
+            book.close()
+            return result.getvalue()
+        irregular_data = excel_bytes([[value, "不规整合成问题", "（粘贴照片处）"] for value in
+                                     ["9月9日", "9.9", "9/9", "09-09", "九月九日", "2025-09-09", "2026-09-09", "2026年9月", "无法辨认"]] + [["合计", "9", ""]])
+        irregular = upload("不规整合成表.xlsx", irregular_data)
+        irregular_rows = request("GET", "/records", params={"document_id": irregular["id"], "date": "9月9日"}).json()
+        check("真实 HTTP 不规整日期 7 条匹配与 2 条待核对", irregular_rows["total"] == 7 and irregular_rows["unrecognized_date_count"] == 2 and irregular_rows["unresolved_date_count"] == 2)
+        check("真实 HTTP 汇总行排除且解析状态显式部分", irregular["record_count"] == 9 and irregular["status"] == "partial")
+        check("真实 HTTP 年份分布与占位状态", irregular_rows["year_distribution"] == {"未登记年份": 5, "2025": 1, "2026": 1} and all(r["reported_status"] is None for r in irregular_rows["items"]))
+        review_rows = request("GET", "/records", params={"document_id": irregular["id"], "date_quality_filter": "needs_review"}).json()
+        check("日期未识别行可以单独查看", review_rows["total"] == 2)
+        day9 = upload("每日检查.xlsx", excel_bytes([["9月9日", "第9日独立记录", ""]]))
+        day10 = upload("每日检查.xlsx", excel_bytes([["9月10日", "第10日独立记录", ""]]))
+        check("真实 HTTP 同名不同日期不会互相顶替", request("GET", f"/documents/{day9['id']}").json()["is_current"] and day10["is_current"])
+        revision = upload("每日检查修订.xlsx", excel_bytes([["9月10日", "第10日修订记录", ""]]), replace_document_id=day10["id"])
+        check("明确替换才形成版本组", revision["version_group"] == day10["version_group"] and not request("GET", f"/documents/{day10['id']}").json()["is_current"] and request("GET", f"/documents/{day9['id']}").json()["is_current"])
+        empty_project = request("POST", "/projects", json={"name": "无资料项目"}).json()["id"]
+        no_evidence = request("POST", "/qa/ask", json={"project_id": empty_project, "question": "规范允许的施工偏差是多少？"}).json()
+        check("无文档直接拒答且无来源", no_evidence["intent"] == "依据不足" and not no_evidence["sources"])
         bad = requests.post(base + "/upload/file", files={"file": ("坏文件.dwg", b"not-dwg")}, timeout=20)
         check("文件头不符拒绝 422", bad.status_code == 422)
         large = requests.post(base + "/upload/file", files={"file": ("超限.txt", b"x" * (1024 * 1024 + 1))}, timeout=20)
@@ -116,7 +144,7 @@ def main():
         pdf.new_page().insert_text((72, 72), "Synthetic drawing text: material concrete C30")
         pdf_bytes = pdf.tobytes()
         pdf.close()
-        export = upload("合成导出说明.pdf", pdf_bytes, source_document_id=rvt["id"])
+        export = upload("合成导出说明.pdf", pdf_bytes, source_document_id=rvt["id"], category="复查依据")
         check("PDF 真实文字解析并关联 RVT 原件", export["status"] == "ready" and export["source_document_id"] == rvt["id"])
         import ezdxf
         drawing = ezdxf.new("R2010")
@@ -129,7 +157,7 @@ def main():
         check("归档原件可下载", request("GET", f"/documents/{dwg['id']}/download").content == b"AC1032" + b"\0" * 64)
         other = request("POST", "/projects", json={"name": "隔离项目B"}).json()["id"]
         doc_b = upload("项目B.txt", "本项目测试口令是蓝色。".encode(), project_id=other)
-        doc_a = upload("项目A.txt", "本项目测试口令是橙色。".encode())
+        doc_a = upload("项目A.txt", "本项目测试口令是橙色。".encode(), category="整改回复")
         scoped = request("POST", "/qa/ask", json={"question": "本项目测试口令是什么？", "query_mode": "semantic", "document_id": doc_a["id"]}, timeout=120).json()
         check("真实本地模型引用限定文档", bool(scoped["answer"].strip()) and bool(scoped["sources"]) and all(s["document_id"] == doc_a["id"] for s in scoped["sources"]))
         cross = requests.get(base + "/documents/" + doc_a["id"], params={"project_id": other}, timeout=10)
@@ -140,7 +168,7 @@ def main():
         issue_id = issue["id"]
         def event(action, attachments, actor="演示复查人"):
             return requests.post(base + f"/issues/{issue_id}/events", json={"action": action, "actor": actor,
-                                 "note": "合成测试处理说明", "attachment_ids": attachments}, timeout=15)
+                                 "note": "合成测试处理说明", "attachment_ids": attachments, "evidence_date": "2026-09-11"}, timeout=15)
         check("未回复直接销项被拒绝", event("recheck_pass", [doc_a["id"]]).status_code == 422)
         check("回复缺附件被拒绝", event("reply", []).status_code == 422)
         check("跨项目附件被拒绝", event("reply", [doc_b["id"]]).status_code == 422)
@@ -155,6 +183,16 @@ def main():
         check("API 重启不把 UUID 原件重复登记", len(request("GET", "/documents").json()["items"]) == len(before))
         check("历史图纸接口主应用已移除", requests.post(base + "/review/run", json={}, timeout=10).status_code == 404)
         check("旧版单独清空向量被停用", requests.post(base + "/knowledge/clear", timeout=10).status_code == 409)
+        stop(process)
+        env.update({"LLM_PROVIDER": "openai", "OPENAI_API_KEY": ""})
+        process = start()
+        missing_key = requests.post(base + "/qa/ask", json={"question": "测试口令？", "query_mode": "semantic", "document_id": doc_a["id"]}, timeout=90)
+        check("真实 HTTP 缺少 API Key 返回 503", missing_key.status_code == 503)
+        still_no_evidence = request("POST", "/qa/ask", json={"project_id": empty_project, "question": "施工规范要求？"}).json()
+        check("模型未配置时无依据范围仍可拒答", still_no_evidence["intent"] == "依据不足")
+        stop(process)
+        env.update({"LLM_PROVIDER": "ollama"})
+        process = start()
         # 使用本机已安装 Streamlit 1.39 的 AppTest，实际连接上面的隔离 API。
         os.environ["RAG_API_BASE"] = base
         sys.path.insert(0, str(repo / "rag_app" / "frontend"))
@@ -165,9 +203,15 @@ def main():
             if page != pages[0]:
                 app.switch_page("pages/" + page.name).run()
             check("Streamlit 页面无运行异常 " + page.name, not app.exception)
+        stop(process)
+        process = None
+        log.flush()
+        server_log = (runtime / "server.log").read_bytes()
+        (repo / "docs" / "工作台集成服务日志_2026-10-08.txt").write_bytes(server_log)
         report = {"status": "passed", "checked_at": time.strftime("%Y-%m-%d %H:%M:%S"), "check_count": len(checks),
                   "checks": checks, "structured_total": 25, "semantic_source_count": len(scoped["sources"]),
-                  "scope": "隔离合成资料、真实 HTTP/Chroma/本地 Ollama/Streamlit AppTest；DWG/RVT/IFC 仅验证基础文件头与归档，未验证真实模型/代理对象解析；未评估工程规范准确率。"}
+                  "server_log_sha256": hashlib.sha256(server_log).hexdigest(),
+                  "scope": "隔离规则及不规整合成资料、真实 HTTP/Chroma/本地 Ollama/Streamlit AppTest；DWG/RVT/IFC 仅验证基础文件头与归档，未验证真实模型/代理对象解析；未评估工程规范准确率。"}
         (repo / "docs" / "工作台回归验证.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(json.dumps({k: v for k, v in report.items() if k != "checks"}, ensure_ascii=False), flush=True)
     finally:

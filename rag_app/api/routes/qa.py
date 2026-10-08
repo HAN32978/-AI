@@ -7,6 +7,7 @@ from api.dependencies import get_rag_chain_dep, LazyRAGChain
 from core.document_catalog import get_catalog
 from core.memory_manager import get_memory_manager
 from core.llm_client import LLMServiceError
+from core.date_parser import date_from_label
 
 router = APIRouter(prefix="/qa", tags=["智能问答"])
 
@@ -42,6 +43,10 @@ class AnswerResponse(BaseModel):
     total: int | None = None
     page: int | None = None
     page_size: int | None = None
+    unresolved_date_count: int = 0
+    unrecognized_date_count: int = 0
+    year_distribution: dict = Field(default_factory=dict)
+    completeness: str | None = None
 
 
 def scope_session(project_id, document_id, session_id):
@@ -59,10 +64,10 @@ async def ask_question(request: QuestionRequest, rag_chain=Depends(get_rag_chain
         catalog.require_project(request.project_id)
         if request.document_id:
             catalog.document(request.document_id, request.project_id)
-        date_match = re.search(r"\d{4}[-/年.]\d{1,2}[-/月.]\d{1,2}(?:日|号)?|\d{1,2}月\d{1,2}[日号]?", question)
-        date = request.business_date or (date_match.group() if date_match else None)
+        date = request.business_date or date_from_label(question) or None
         structured = request.query_mode == "records" or (request.query_mode == "auto" and
-                     bool(date) and any(term in question for term in ["记录", "问题", "检查", "全部", "清单"]))
+                     ((bool(date) and any(term in question for term in ["记录", "问题", "检查", "全部", "清单"])) or
+                      (any(term in question for term in ["全部", "清单", "多少"]) and any(term in question for term in ["检查问题", "检查记录", "整改问题", "现场记录"]))))
         session = scope_session(request.project_id, request.document_id, request.session_id)
         if structured:
             # 闭环状态必须来自人工事件，不能用原表空白/照片占位推断。
@@ -80,8 +85,14 @@ async def ask_question(request: QuestionRequest, rag_chain=Depends(get_rag_chain
                         "content": "；".join(f"{k}：{v}" for k, v in row["cells"].items() if v)} for row in rows]
             get_memory_manager().add_exchange(session, question, answer)
             return AnswerResponse(answer=answer, sources=sources, intent="完整记录查询", records=rows,
-                                  total=data["total"], page=data["page"], page_size=data["page_size"])
+                                  total=data["total"], page=data["page"], page_size=data["page_size"],
+                                  unresolved_date_count=data["unresolved_date_count"], unrecognized_date_count=data["unrecognized_date_count"],
+                                  year_distribution=data["year_distribution"], completeness=data["completeness"])
         ids = catalog.retrieval_ids(request.project_id, request.document_id)
+        if not ids and isinstance(rag_chain, LazyRAGChain):
+            answer = "根据现有知识库无法回答该问题。当前范围没有可检索文档，未调用问答模型。"
+            get_memory_manager().add_exchange(session, question, answer)
+            return AnswerResponse(answer=answer, sources=[], intent="依据不足")
         if isinstance(rag_chain, LazyRAGChain):
             result = rag_chain.ask(question, session, document_ids=ids)
         else:  # 保留课程的依赖替换测试接口。

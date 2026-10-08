@@ -1,0 +1,21 @@
+{
+  "baseline_commit": "51f55af42cba3fe345eb887a546689029b414004",
+  "scope": "隔离合成 Excel 与真实 SQLite；执行从 Git 读取的上一版源码，向量写入使用替身；不验证旧版模型与页面。",
+  "same_filename": {
+    "day9_matching": 0,
+    "day10_matching": 1
+  },
+  "irregular_dates": {
+    "retained_rows": 9,
+    "day9_matching": 2,
+    "warning_count_exposed": false
+  },
+  "summary": {
+    "source_problem_rows": 1,
+    "stored_rows": 2
+  },
+  "placeholder": {
+    "source_status": "粘贴照片处。",
+    "stored_as_real_status": true
+  }
+}

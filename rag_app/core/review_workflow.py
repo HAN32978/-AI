@@ -30,7 +30,7 @@ def review_issues(
             metadata = getattr(doc, "metadata", {}) or {}
             sources.append({
                 "source": str(metadata.get("original_filename") or metadata.get("file_name") or metadata.get("source") or "未知资料"),
-                "page": metadata.get("page"),
+                "page": (metadata["page"] + 1) if metadata.get("page") is not None else None,
                 "content": str(getattr(doc, "page_content", ""))[:600],
             })
         severity = str(issue.get("severity") or "").upper()

@@ -30,6 +30,7 @@ class ReviewWorkflowTests(TestCase):
         self.assertEqual(result["summary"], {"total": 2, "missing_sources": 1, "high_risk": 1})
         self.assertEqual(result["issues"][0]["status"], "高风险人工复核")
         self.assertEqual(result["issues"][0]["candidate_sources"][0]["source"], "演示规范.pdf")
+        self.assertEqual(result["issues"][0]["candidate_sources"][0]["page"], 3)
         self.assertEqual(result["issues"][1]["status"], "待补充依据")
 
 

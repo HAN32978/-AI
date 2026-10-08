@@ -81,7 +81,7 @@ class CatalogTests(unittest.TestCase):
 
     def test_versions_and_project_do_not_mix(self):
         one = self.register_ready(self.workbook(count=25), version_label="v1")
-        two = self.register_ready(self.workbook(count=2), version_label="v2")
+        two = self.register_ready(self.workbook(count=2), version_label="v2", replace_document_id=one["id"])
         project = self.catalog.create_project("其他项目")
         self.register_ready(self.workbook("other.xlsx", 3), project_id=project["id"])
         self.assertEqual(self.catalog.query_records()["total"], 2)
@@ -92,7 +92,7 @@ class CatalogTests(unittest.TestCase):
 
     def test_old_retry_does_not_replace_new_current_version(self):
         old = self.register_ready(self.workbook(count=1), version_label="v1")
-        new = self.register_ready(self.workbook(count=2), version_label="v2")
+        new = self.register_ready(self.workbook(count=2), version_label="v2", replace_document_id=old["id"])
         task = {"id": self.catalog.tasks(old["id"])[0]["id"], "document_id": old["id"]}
         self.catalog.finish(task, "partial", error="旧版重新处理")
         self.assertFalse(self.catalog.document(old["id"])["is_current"])
@@ -117,15 +117,18 @@ class CatalogTests(unittest.TestCase):
     def test_manual_closure_requires_sequence_actor_note_evidence(self):
         evidence = self.folder / "reply.txt"
         evidence.write_text("演示整改依据", encoding="utf-8")
-        doc = self.register_ready(evidence)
+        doc = self.register_ready(evidence, category="整改回复")
+        recheck_file = self.folder / "recheck.txt"
+        recheck_file.write_text("人工复查依据", encoding="utf-8")
+        recheck = self.register_ready(recheck_file, category="复查依据")
         issue = self.catalog.create_issue("default", "演示现场问题", "登记人")
         with self.assertRaises(ValueError):
             self.catalog.add_issue_event(issue["id"], "recheck_pass", "复查人", "通过", [doc["id"]])
         with self.assertRaises(ValueError):
             self.catalog.add_issue_event(issue["id"], "reply", "整改人", "已提交", [])
-        self.catalog.add_issue_event(issue["id"], "reply", "整改人", "演示回复", [doc["id"]])
+        self.catalog.add_issue_event(issue["id"], "reply", "整改人", "演示回复", [doc["id"]], "2026-09-10")
         self.catalog.add_issue_event(issue["id"], "request_recheck", "申请人", "申请复查")
-        result = self.catalog.add_issue_event(issue["id"], "recheck_pass", "复查人", "人工核实通过", [doc["id"]])
+        result = self.catalog.add_issue_event(issue["id"], "recheck_pass", "复查人", "人工核实通过", [recheck["id"]], "2026-09-11")
         self.assertEqual(result["status"], "closed")
         self.assertEqual(len(result["events"]), 4)
         self.assertEqual(DocumentCatalog(self.catalog.path).issue(issue["id"])["status"], "closed")

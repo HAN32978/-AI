@@ -14,11 +14,14 @@ cols = st.columns(3)
 date = cols[0].text_input("日期（可空）", placeholder="9月9日 / 2026-09-09")
 state = cols[1].text_input("原表状态（可空；未登记填 unknown）")
 keyword = cols[2].text_input("原表关键词（可空）")
+date_review = st.checkbox("只查看日期待核对行（忽略日期筛选，不隐藏未识别记录）")
 cols = st.columns(2)
 size = cols[0].selectbox("每页记录数", [20, 50, 100, 200])
 page = cols[1].number_input("页码", min_value=1, value=1, step=1)
 params = {"project_id": project, "page": page, "page_size": size}
-for key, value in [("document_id", selected), ("date", date), ("reported_status", state), ("keyword", keyword)]:
+if date_review:
+    params["date_quality_filter"] = "needs_review"
+for key, value in [("document_id", selected), ("date", date if not date_review else ""), ("reported_status", state), ("keyword", keyword)]:
     if value:
         params[key] = value
 data = require_response(api_request("GET", "/records", params=params, timeout=15))
@@ -26,10 +29,12 @@ if data:
     st.metric("全部匹配记录", data["total"])
     st.caption(f"第 {page} 页 / 共 {max(1, (data['total'] + size - 1) // size)} 页 · 本页 {len(data['items'])} 条")
     st.info(data["note"])
+    st.caption(f"当前范围日期待核对：{data['unresolved_date_count']} 行；未识别/缺少日：{data['unrecognized_date_count']} 行。年份分布：{data['year_distribution']}")
     rows = data["items"]
     st.dataframe([{"文件": r["original_filename"], "版本": r["version_label"], "日期": r["business_date"] or r["date_raw"] or "未登记",
                    "部位": r["location"], "问题原文": r["issue_text"], "整改要求": r["requirement"],
-                   "原表状态": r["reported_status"] or "未登记", "工作表": r["sheet_name"], "行号": r["row_number"]} for r in rows],
+                   "原表状态": r["reported_status"] or "未登记", "工作表": r["sheet_name"], "行号": r["row_number"],
+                   "日期识别": r["date_quality"], "日期说明": r["date_error"]} for r in rows],
                  use_container_width=True, hide_index=True)
     if st.button("生成完整筛选清单 CSV"):
         export_params = {k: v for k, v in params.items() if k not in {"page", "page_size"}}

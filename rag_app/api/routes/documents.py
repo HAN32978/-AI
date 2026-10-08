@@ -78,23 +78,23 @@ def download(document_id: str, project_id: str = "default"):
 @router.get("/records")
 def records(project_id: str = "default", document_id: str | None = None, date: str | None = None,
             reported_status: str | None = None, keyword: str | None = None,
-            page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=200)):
-    return checked(get_catalog().query_records, project_id, document_id, date, reported_status, keyword, page, page_size)
+            page: int = Query(1, ge=1), page_size: int = Query(20, ge=1, le=200), date_quality_filter: str | None = None):
+    return checked(get_catalog().query_records, project_id, document_id, date, reported_status, keyword, page, page_size, date_quality_filter)
 
 
 @router.get("/records/export")
 def export_records(project_id: str = "default", document_id: str | None = None,
-                   date: str | None = None, reported_status: str | None = None, keyword: str | None = None):
+                   date: str | None = None, reported_status: str | None = None, keyword: str | None = None, date_quality_filter: str | None = None):
     output = io.StringIO(newline="")
     writer = csv.writer(output)
-    writer.writerow(["文件", "版本", "业务日期", "部位", "问题原文", "整改要求", "原表状态", "工作表", "行号", "责任方", "记录ID", "原表全部字段JSON"])
+    writer.writerow(["文件", "版本", "业务日期", "部位", "问题原文", "整改要求", "原表状态", "工作表", "行号", "责任方", "记录ID", "原表全部字段JSON", "日期识别状态", "日期说明"])
     page = 1
     while True:
-        result = checked(get_catalog().query_records, project_id, document_id, date, reported_status, keyword, page, 200)
+        result = checked(get_catalog().query_records, project_id, document_id, date, reported_status, keyword, page, 200, date_quality_filter)
         for record in result["items"]:
             values = [record["original_filename"], record["version_label"], record["business_date"] or record["date_raw"],
                       record["location"], record["issue_text"], record["requirement"], record["reported_status"], record["sheet_name"], record["row_number"],
-                      record["responsible_party"], record["id"], json.dumps(record["cells"], ensure_ascii=False)]
+                      record["responsible_party"], record["id"], json.dumps(record["cells"], ensure_ascii=False), record["date_quality"], record["date_error"]]
             writer.writerow(["'" + str(v) if str(v or "").startswith(("=", "+", "-", "@")) else v or "" for v in values])
         if page * 200 >= result["total"]:
             break
@@ -118,6 +118,7 @@ class IssueEvent(BaseModel):
     actor: str = Field(min_length=1, max_length=100)
     note: str = Field(min_length=1, max_length=5000)
     attachment_ids: list[str] = Field(default_factory=list, max_length=20)
+    evidence_date: str = ""
 
 
 @router.get("/issues")
@@ -143,4 +144,4 @@ def issue(issue_id: str, project_id: str = "default"):
 def event(issue_id: str, request: IssueEvent):
     issue(issue_id, request.project_id)
     return checked(get_catalog().add_issue_event, issue_id, request.action, request.actor,
-                   request.note, request.attachment_ids)
+                   request.note, request.attachment_ids, request.evidence_date)

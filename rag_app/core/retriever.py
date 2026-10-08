@@ -12,6 +12,7 @@ from config.settings import settings
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain_core.documents.compressor import BaseDocumentCompressor
 from core.vector_store import get_vector_store_manager
+from core.metadata_filters import faiss_filter
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,9 @@ class RAGRetriever:
         获取适配Langchain链的检索器
         """
         search_kwargs = search_kwargs or {"k": settings.SEARCH_TOP_K}
+        if settings.VECTOR_STORE_TYPE == "faiss" and search_kwargs.get("filter"):
+            search_kwargs = {**search_kwargs, "filter": faiss_filter(search_kwargs["filter"]),
+                             "fetch_k": self.vector_store._store.index.ntotal}
         # 获取基础向量检索器
         base_retriever = self.vector_store._store.as_retriever(
             search_kwargs=search_kwargs

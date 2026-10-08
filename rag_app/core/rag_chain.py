@@ -24,14 +24,14 @@ DEFAULT_SESSION_ID = "default"
 class RAGChain:
     """ RAG问答链 """
     def __init__(self):
-        self.llm = get_llm()
+        self.llm = None
         self.intent_recognizer = IntentRecognizer()
         self.memory_manager = get_memory_manager()
         self.retriever = get_rag_retriever()
-        self._rag_chain = self._create_rag_chain()
+        self._rag_chain = None
         logger.info("RAG问答链初始化完成")
 
-    def _create_rag_chain(self, document_ids=None):
+    def _create_rag_chain(self, document_ids=None, source_docs=None):
         """ 创建RAG问答链 """
         # 1. 改写用户提示词
         # 用户第一次问：推荐几款牙膏？   第二次：那个便宜？
@@ -55,7 +55,7 @@ class RAGChain:
             search_kwargs["filter"] = {"document_id": {"$in": document_ids}}
         retriever = (RunnableLambda(lambda query: []) if document_ids == [] else
                      self.retriever.get_compresstion_retriever(search_kwargs=search_kwargs))
-        history_aware_retriever = create_history_aware_retriever(
+        history_aware_retriever = RunnableLambda(lambda query: source_docs) if source_docs is not None else create_history_aware_retriever(
             self.llm,
             retriever,
             contextualize_q_prompt
@@ -112,13 +112,25 @@ class RAGChain:
 
         # 2. 获取对话历史
         try:
-            ensure_llm_ready()
             chat_history = self.memory_manager.get_chat_history(session_id)
+            query = question
+            if any(word in question for word in ("它", "上述", "这个", "那个", "继续")):
+                previous = next((m.content for m in reversed(chat_history) if isinstance(m, HumanMessage)), "")
+                query = f"{previous}\n追问：{question}" if previous else question
+            source_docs = [] if document_ids == [] else self.retriever.retrieve(
+                query, filter_dict={"document_id": {"$in": document_ids}} if document_ids is not None else None)
+            if not source_docs:
+                answer = "根据现有知识库无法回答该问题。当前范围没有检索到可用依据，未调用问答模型。"
+                self.memory_manager.add_exchange(session_id, question, answer)
+                return {"answer": answer, "sources": [], "intent": "依据不足"}
+            ensure_llm_ready()
+            if self.llm is None:
+                self.llm = get_llm()
             chain_input = {
                 "input": question,
                 "chat_history": chat_history
             }
-            chain = self._rag_chain if document_ids is None else self._create_rag_chain(document_ids)
+            chain = self._create_rag_chain(document_ids, source_docs)
             result = chain.invoke(chain_input)
             answer = result["answer"]
             source_docs = result.get("context", [])

@@ -15,16 +15,16 @@ def get_vector_store_dep():
 
 def get_rag_chain_dep():
     """获取RAG链依赖"""
-    try:
-        return LazyRAGChain()
-    except (ValueError, LLMServiceError) as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return LazyRAGChain()
 
 
 class LazyRAGChain:
     """完整记录查询不初始化模型；语义问答时才加载。"""
     def ask(self, question, session_id, document_ids=None):
-        return get_rag_chain().ask(question, session_id, document_ids=document_ids)
+        try:
+            return get_rag_chain().ask(question, session_id, document_ids=document_ids)
+        except ValueError as exc:
+            raise LLMServiceError("模型配置不完整或无效，请检查后端 config/.env 中的提供商、API Key、地址与模型名称。") from exc
 
     def clear_session(self, session_id):
         from core.memory_manager import get_memory_manager

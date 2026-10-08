@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     # 项目基本配置
     PROJECT_NAME: str = "工程项目RAG智能问答系统"
-    PROJECT_VERSION: str = "1.1.0"
+    PROJECT_VERSION: str = "1.1.1"
     BASE_DIR : Path = Path(__file__).parent.parent.resolve()
 
     # 数据目录

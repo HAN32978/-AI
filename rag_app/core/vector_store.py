@@ -14,6 +14,7 @@ from langchain.schema import Document
 from langchain_community.vectorstores import Chroma, FAISS
 from config.settings import settings
 from core.embedding import get_embedding_model
+from core.metadata_filters import faiss_filter
 
 logger = logging.getLogger(__name__)
 
@@ -130,18 +131,20 @@ class VectorStoreManager:
     def similarity_search(self, query: str, k: int = None, filter_dict: dict = None) -> list:
         """ 相似度检索 """
         k = k or settings.SEARCH_TOP_K
-        if filter_dict and settings.VECTOR_STORE_TYPE == "chroma":
-            return self._store.similarity_search(query, k=k, filter=filter_dict)
-        else:
-            return self._store.similarity_search(query, k=k)
+        kwargs = {"filter": filter_dict} if filter_dict else {}
+        if settings.VECTOR_STORE_TYPE == "faiss" and filter_dict:
+            kwargs["filter"] = faiss_filter(filter_dict)
+            kwargs["fetch_k"] = self._store.index.ntotal
+        return self._store.similarity_search(query, k=k, **kwargs)
         
     def similarity_search_with_score(self, query: str, k: int = None, filter_dict: dict = None) -> list:
         """ 相似度检索并返回相关性分数 """
         k = k or settings.SEARCH_TOP_K
-        if filter_dict and settings.VECTOR_STORE_TYPE == "chroma":
-            return self._store.similarity_search_with_score(query, k=k, filter=filter_dict)
-        else:
-            return self._store.similarity_search_with_score(query, k=k)
+        kwargs = {"filter": filter_dict} if filter_dict else {}
+        if settings.VECTOR_STORE_TYPE == "faiss" and filter_dict:
+            kwargs["filter"] = faiss_filter(filter_dict)
+            kwargs["fetch_k"] = self._store.index.ntotal
+        return self._store.similarity_search_with_score(query, k=k, **kwargs)
 
     def get_collection_stats(self) -> dict:
         """ 获取向量库统计信息 """

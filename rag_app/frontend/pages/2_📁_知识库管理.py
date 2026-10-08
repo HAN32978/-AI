@@ -1,5 +1,6 @@
 """原件台账与持久化入库状态。"""
 import streamlit as st
+import json
 from ui import (api_request, inject_styles, render_sidebar, page_header, project_selector,
                 require_response, document_choices, document_label, DOCUMENT_STATES)
 
@@ -30,6 +31,8 @@ with upload_tab:
         version = st.text_input("版本标签（可空，默认登记时间）", placeholder="V1 / 2026版")
         parent = st.selectbox("关联原件（导出件可选择 DWG/RVT 等）", [""] + list(by_id),
                               format_func=lambda v: "无关联" if not v else document_label(by_id[v]))
+        replacement = st.selectbox("替换/修订已有文档（默认独立保存，不因同名自动覆盖）", [""] + list(by_id),
+                                   format_func=lambda v: "独立文档" if not v else document_label(by_id[v]))
         submit = st.form_submit_button("提交入库", type="primary")
     if submit:
         if not files:
@@ -38,7 +41,7 @@ with upload_tab:
             response = api_request("POST", "/upload/file", files={"file": (file.name, file.getvalue())},
                                    data={"project_id": project, "category": category, "business_date": date,
                                          "document_number": number, "version_label": version,
-                                         "source_document_id": parent}, timeout=60)
+                                         "source_document_id": parent, "replace_document_id": replacement}, timeout=60)
             data = require_response(response)
             if data:
                 st.success(f"{file.name}：{data['message']}（{DOCUMENT_STATES.get(data['status'], data['status'])}）")
@@ -60,12 +63,15 @@ with registry_tab:
                        "当前版本": bool(d["is_current"]), "业务日期": d["business_date"] or d["month_day"] or "未登记",
                        "状态": DOCUMENT_STATES.get(d["status"], d["status"]), "记录数": d["record_count"],
                        "索引片段": d["chunk_count"], "说明/错误": d["error"]} for d in docs], use_container_width=True, hide_index=True)
-        st.caption("当前版本按同一项目、同名文件分组；明确选择文档可查询历史版本。失败的新版本不会替换旧的可用版本。")
+        st.caption("同名文件默认独立保存；只有上传时明确选择替换/修订才形成版本组。失败的新版本不会替换旧的可用版本。")
         selected = st.selectbox("查看原件与任务", list(by_id), format_func=lambda v: document_label(by_id[v]))
         detail = require_response(api_request("GET", f"/documents/{selected}", params={"project_id": project}, timeout=5))
         if detail:
             st.write("文档 ID：", selected)
             st.write("关联原件 ID：", detail["source_document_id"] or "无")
+            st.write("版本组 ID：", detail["version_group"])
+            with st.expander("表格解析报告（日期问题、汇总行与表头）"):
+                st.json(json.loads(detail.get("parse_report", "{}")))
             st.dataframe(detail["tasks"], use_container_width=True, hide_index=True)
             if detail["error"]:
                 st.warning(detail["error"])
@@ -75,7 +81,7 @@ with registry_tab:
                     st.download_button("下载原件", response.content, detail["original_filename"], key=f"download_{selected}")
                 else:
                     st.error("原件读取失败。")
-            if detail["status"] in {"failed", "partial", "stored_only"} and st.button("重新解析此文档"):
+            if detail["status"] in {"failed", "partial", "stored_only", "ready"} and st.button("重新解析此文档"):
                 data = require_response(api_request("POST", f"/documents/{selected}/retry", params={"project_id": project}, timeout=10))
                 if data:
                     st.success("已重新排队；请刷新查看结果。")

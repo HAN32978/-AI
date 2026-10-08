@@ -11,7 +11,7 @@ from core.file_ingestion import SUPPORTED, validate_file
 router = APIRouter(prefix="/upload", tags=["文件上传"])
 
 
-async def receive_file(file, project_id, category, business_date, document_number, version_label, source_document_id):
+async def receive_file(file, project_id, category, business_date, document_number, version_label, source_document_id, replace_document_id=""):
     original = (file.filename or "").replace("\\", "/").split("/")[-1]
     suffix = Path(original).suffix.lower()
     if not original or suffix not in SUPPORTED:
@@ -34,7 +34,7 @@ async def receive_file(file, project_id, category, business_date, document_numbe
                 stream.write(part)
         validate_file(target)
         document, duplicate = catalog.register(target, original, project_id, category, business_date,
-                                                document_number, version_label, source_document_id or None)
+                                                document_number, version_label, source_document_id or None, replace_document_id or None)
         if duplicate:
             target.unlink()
         return {"status": document["status"], "document_id": document["id"], "file_id": document["id"],
@@ -54,8 +54,8 @@ async def receive_file(file, project_id, category, business_date, document_numbe
 async def upload_file(file: UploadFile = File(...), project_id: str = Form("default"),
                       category: str = Form("general"), business_date: str = Form(""),
                       document_number: str = Form(""), version_label: str = Form(""),
-                      source_document_id: str = Form("")):
-    result = await receive_file(file, project_id, category, business_date, document_number, version_label, source_document_id)
+                      source_document_id: str = Form(""), replace_document_id: str = Form("")):
+    result = await receive_file(file, project_id, category, business_date, document_number, version_label, source_document_id, replace_document_id)
     return JSONResponse(result, status_code=200 if result["duplicate"] else 202)
 
 
